@@ -1,0 +1,139 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>再谈 Reduce Filter Map | Secret</title>
+  <meta name="author" content="Zhenyu">
+  
+  <meta name="description" content="Reduce 蹲,Filter 蹲,Map 蹲">
+  
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="再谈 Reduce Filter Map"/>
+  <meta property="og:site_name" content="Secret"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Secret" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div id="page" class="site">
+  <div id="primary" class="content-area">
+
+    <header id="header" class="inner"><div class="site-branding">
+  <h1 class="site-title">
+    <a href="/">Secret</a>
+  </h1>
+  <p class="site-description"></p>
+</div>
+<nav id="site-navigation" class="main-navigation" role="navigation">
+  <ul>
+    
+      <li><a href="/">主页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+</nav></header>
+
+    <main id="main" class="site-main posts-loop" role="main">
+      <article class="post article">
+
+  
+  
+    <h3 class="article-title"><span>再谈 Reduce Filter Map</span></h3>
+  
+
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/12/11/reduce-filer-map/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-12-10T21:01:00.000Z">
+          2015-12-11
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>再谈 Reduce Filter Map</p>
+<a id="more"></a>
+<p>在 Swift 标准库中有许多有用的<code>高阶函数</code>，在这篇文章中将带领大家领略它们的风采，探索这些神奇的函数内部可能的实现，从而探讨<code>函数式</code>的奥妙。此文假设大家知道 <code>Reduce</code> <code>Filter</code> <code>Map</code> 等函数的作用。</p>
+<p>##什么是高阶函数</p>
+<p>Swift 骨子中有着一些函数式编程语言的基因，而纯函数式编程语言的重要特性之一就是支持<code>高阶函数</code>。</p>
+<p>什么是<code>高阶函数</code>呢？</p>
+<p>如果一个函数能把另一个函数当做参数或者能返回另一个函数，我们就叫它为<code>高阶函数</code>。在 Swift 中，传递函数就是传递<code>闭包 Closure</code>。下面看一个简单的例子：</p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">func aHigherOrderFunction<span class="function"><span class="params">(closure: () -&gt; Void)</span> &#123;</span></div><div class="line">	<span class="title">closure</span><span class="params">()</span></div><div class="line">&#125;</div><div class="line"><span class="title">let</span> <span class="title">myClosure</span> = &#123;  <span class="title">print</span><span class="params">(<span class="string">"Hello world"</span>)</span> &#125;</div><div class="line"></div><div class="line"><span class="title">aHigherOrderFunction</span><span class="params">(myClosure)</span> //<span class="title">print</span> "<span class="title">Hello</span> <span class="title">world</span>"</div></pre></td></tr></table></figure>
+<p>##Reduce</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">_reduce</span>&lt;Element, Result&gt;<span class="params">(elements: [Element], initial: Result, combine:<span class="params">(accumulator: Result, element: Element)</span></span></span> -&gt; <span class="type">Result</span>) -&gt; <span class="type">Result</span> &#123;</div><div class="line">	<span class="keyword">var</span> acc = initial</div><div class="line">	<span class="keyword">for</span> ele <span class="keyword">in</span> elememts &#123;</div><div class="line">		acc = combine(accumulator: acc, element: ele)</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> acc</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>##Filter</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">_filter</span>&lt;Element&gt; <span class="params">(elements: [Element], <span class="built_in">filter</span>:<span class="params">(Element -&gt; Bool)</span></span></span>) &#123;</div><div class="line">	<span class="keyword">return</span> _reduce(elements, initial: [<span class="type">Element</span>]()) &#123; (acc, ele) <span class="keyword">in</span> </div><div class="line">		<span class="keyword">return</span> <span class="built_in">filter</span>(ele) ? acc + [ele] : acc</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>##Map<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">_map</span>&lt;Element, Result&gt;<span class="params">(elements:[Element], tranfrom:<span class="params">(element -&gt; Result)</span></span></span>) -&gt; [<span class="type">Result</span>] &#123;</div><div class="line">	<span class="keyword">return</span> _reduce(elements, initial: [<span class="type">Result</span>]()) &#123; (acc, ele) <span class="keyword">in</span> </div><div class="line">		<span class="keyword">return</span> acc + [transfrom(ele)]</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>##FlatMap For Optional</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">_flatmap</span>&lt;Element, Result&gt;<span class="params">(elements: [Element], transfrom:<span class="params">( Element -&gt; Result?)</span></span></span>) -&gt; [<span class="type">Result</span>] &#123;</div><div class="line">	<span class="keyword">return</span> _reduce(elements, initial: [<span class="type">Result</span>]()) &#123; (acc, ele) <span class="keyword">in</span> </div><div class="line">		<span class="keyword">if</span> <span class="keyword">let</span> result = transform(ele) &#123;</div><div class="line">			<span class="keyword">return</span> acc + [result]</div><div class="line">		&#125;<span class="keyword">else</span> &#123;</div><div class="line">			<span class="keyword">return</span> acc</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>##总结<br>上面都是些小小的函数实现着普普通通的功能，你要是非要用 <code>for</code> 循环实现上面的功能也没人拦着你，但是换一种思路，换一种角度去写代码，你会发现另一个世界，春暖花开。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+        <div class="article-meta pull-left">
+          
+  
+
+  <span class="post-categories">
+    <i class="icon-categories"></i>
+    <a href="/categories/学习笔记/">学习笔记</a>
+  </span>
+
+
+          
+  
+
+  <span class="post-tags">
+    <i class="icon-tags"></i>
+    <a href="/tags/Swift/">Swift</a>
+  </span>
+
+
+        </div>
+        
+    </footer>
+  </div>
+</article>
+
+  
+
+
+
+    </main>
+
+    <footer id="colophon" class="site-footer" role="contentinfo"><p class="site-info">
+  Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+  Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+  </br>
+  
+  &copy; 2016 Zhenyu
+  
+</p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

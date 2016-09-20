@@ -1,0 +1,156 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>自己定义 PickerView | Secret</title>
+  <meta name="author" content="Zhenyu">
+  
+  <meta name="description" content="第三方库再好，也不如私人定制的好">
+  
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="自己定义 PickerView"/>
+  <meta property="og:site_name" content="Secret"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Secret" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div id="page" class="site">
+  <div id="primary" class="content-area">
+
+    <header id="header" class="inner"><div class="site-branding">
+  <h1 class="site-title">
+    <a href="/">Secret</a>
+  </h1>
+  <p class="site-description"></p>
+</div>
+<nav id="site-navigation" class="main-navigation" role="navigation">
+  <ul>
+    
+      <li><a href="/">主页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+</nav></header>
+
+    <main id="main" class="site-main posts-loop" role="main">
+      <article class="post article">
+
+  
+  
+    <h3 class="article-title"><span>自己定义 PickerView</span></h3>
+  
+
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/07/09/how-coustom-pickerview/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-07-09T15:15:49.000Z">
+          2015-07-09
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>自己定义 PickerView<br><a id="more"></a></p>
+<blockquote>
+<p>本文受 <a href="http://www.superqq.com/blog/2015/07/06/ioskai-fa-zi-ding-yi-shi-jian-xuan-qu-qi/" target="_blank" rel="external">刚刚在线</a> 启发而写，算是一个 Swift 版本并有些别的改动。版本： <code>Swift 1.2</code> <code>xCode 6.3</code>。 </p>
+</blockquote>
+<p>##前言</p>
+<p>上面提到，<a href="http://www.superqq.com/blog/2015/07/06/ioskai-fa-zi-ding-yi-shi-jian-xuan-qu-qi/" target="_blank" rel="external">刚刚在线</a> 上用 <code>Objective-C</code> 写了一个 <code>DatePickerView</code>， 因为自己的小项目中也要自定义一个 <code>PickerView</code>，所以就借鉴大神的思路，为自己写了一个 <code>PickerView</code> 名曰 <code>MaPickerView</code>。</p>
+<p>##开始</p>
+<p>先瞅我们的最终效果：<img src="http://7xk9hm.com1.z0.glb.clouddn.com/MaPickerView.png" alt=""> </p>
+<p>格式样式和 <a href="http://www.superqq.com/blog/2015/07/06/ioskai-fa-zi-ding-yi-shi-jian-xuan-qu-qi/" target="_blank" rel="external">刚刚在线</a> 是一样的，上面说的很清楚了。</p>
+<p>###Step1: 构建页面</p>
+<p>新建一个 <code>MaPickerView</code> 的 <code>Swift</code> 文件并继承自 <code>UIView</code>。重写它的 <code>init(frame: CGRent)</code> 方法。</p>
+<p>因为要实现点击 MaPickerView 背景整个 View 消失的功能，所以整个 MaPickerView 的背景部分要能处理点击事件，而这种情况下最好的控件就是 UIControl 了:</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">func initBackgroundView() &#123;</div><div class="line">  self.control = UIControl(<span class="string">frame:</span> frame)</div><div class="line">  control.backgroundColor = UIColor(<span class="string">red:</span> <span class="number">0.0</span><span class="regexp">/255.0, green: 0.0/</span><span class="number">255.0</span>, <span class="string">blue:</span> <span class="number">0.0</span>/<span class="number">255.0</span>, <span class="string">alpha:</span> <span class="number">0.5</span>)</div><div class="line">  self.addSubview(control)</div><div class="line">  control.addTarget(self, <span class="string">action:</span> <span class="string">"actionCancel:"</span>, <span class="string">forControlEvents:</span> UIControlEvents.TouchUpInside)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>初始化 <code>PickerView</code> 上的 ToolBar 和两个按钮：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">func initToolBar() &#123;</div><div class="line">  <span class="keyword">self</span>.toolBar = <span class="built_in">UIToolbar</span>(frame: <span class="built_in">CGRectMake</span>(<span class="number">0</span>, frame.height - <span class="number">250</span>, frame.width, <span class="number">50</span>))        </div><div class="line">  toolBar.autoresizingMask = <span class="built_in">UIViewAutoresizing</span>.FlexibleTopMargin | <span class="built_in">UIViewAutoresizing</span>.FlexibleWidth</div><div class="line">  var itemCancelDone: <span class="built_in">UIBarButtonItem</span> = <span class="built_in">UIBarButtonItem</span>(title: <span class="string">"确定"</span>, style: <span class="built_in">UIBarButtonItemStyle</span>.Plain, target: <span class="keyword">self</span>, action: <span class="string">"actionConfirm:"</span>)</div><div class="line">  var itemCancel: <span class="built_in">UIBarButtonItem</span> = <span class="built_in">UIBarButtonItem</span>(title: <span class="string">"取消"</span>, style: <span class="built_in">UIBarButtonItemStyle</span>.Plain, target: <span class="keyword">self</span>, action: <span class="string">"actionCancel:"</span>)</div><div class="line">  var space: <span class="built_in">UIBarButtonItem</span> = <span class="built_in">UIBarButtonItem</span>(barButtonSystemItem: <span class="built_in">UIBarButtonSystemItem</span>.FlexibleSpace, target: <span class="literal">nil</span>, action: <span class="literal">nil</span>)</div><div class="line">  toolBar.setItems([itemCancel, space, itemCancelDone], animated: <span class="literal">true</span>)</div><div class="line">  <span class="keyword">self</span>.control.addSubview(toolBar)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>初始化 <code>PickerView</code> :</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">func initPikerView() &#123;</div><div class="line">  pickerView = UIPickerView()</div><div class="line">  pickerView<span class="selector-class">.backgroundColor</span> = pickerViewColor</div><div class="line">  pickerView<span class="selector-class">.frame</span> = CGRectMake(<span class="number">0</span>, frame<span class="selector-class">.height</span> - <span class="number">200</span>, frame<span class="selector-class">.width</span>, <span class="number">220</span>)</div><div class="line">  pickerView<span class="selector-class">.delegate</span> = self</div><div class="line">  control.addSubview(pickerView)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>总的来说，整个大大的灰色背景是一个 <code>UIControl</code>,将一个 <code>ToolBar</code> 和 <code>PickerView</code> 各自设置好合适的 <code>frame</code> 然后加在刚刚准备好的 <code>control</code> 上就 OK 了。</p>
+<p>###Step2: 实现功能</p>
+<p>从这里开始，我与 <a href="http://www.superqq.com/blog/2015/07/06/ioskai-fa-zi-ding-yi-shi-jian-xuan-qu-qi/" target="_blank" rel="external">刚刚在线</a> 的实现思路上就不同了， <code>Swift</code> 优势尽显。在 <a href="http://www.superqq.com/blog/2015/07/06/ioskai-fa-zi-ding-yi-shi-jian-xuan-qu-qi/" target="_blank" rel="external">刚刚在线</a> 中，作者是写了一个协议来完成的回调的实现，而我是用 <code>Swift</code> 中的闭包来实现的。</p>
+<p>首先在 <code>MaPickerView</code> 中定义的全局变量：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">class MaPickerView: UIView &#123;</div><div class="line">  ...</div><div class="line">  var columnsNum: Int = 1</div><div class="line">  var selected: ((String) -&gt; Void)?</div><div class="line">  var dataSource: [<span class="string">String</span>] = [<span class="string">String</span>](<span class="link"></span>)</div><div class="line">  ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>实现 <code>UIPickerViewDataSource</code> <code>UIPickerViewDelegate</code> 协议中的方法：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">MaPickerView</span>: <span class="title">UIPickerViewDataSource</span>, <span class="title">UIPickerViewDelegate</span> </span>&#123;</div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">numberOfComponentsInPickerView</span><span class="params">(pickerView: UIPickerView)</span></span> -&gt; <span class="type">Int</span> &#123;</div><div class="line">    <span class="keyword">return</span> columnsNum</div><div class="line">  &#125;</div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">pickerView</span><span class="params">(pickerView: UIPickerView, numberOfRowsInComponent component: Int)</span></span> -&gt; <span class="type">Int</span> &#123;</div><div class="line">    <span class="keyword">return</span> dataSource.<span class="built_in">count</span></div><div class="line">  &#125;</div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">pickerView</span><span class="params">(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int)</span></span> -&gt; <span class="type">String</span>! &#123;</div><div class="line">    <span class="keyword">return</span> dataSource[row]</div><div class="line">  &#125;	</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>最关键的一步，在 ToolBar 确定按钮的监听方法中这么写： </p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">MaPickerView</span> </span>&#123;</div><div class="line">  ...</div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">actionConfirm</span><span class="params">(sender: AnyObject)</span></span> &#123;</div><div class="line">    <span class="keyword">if</span> <span class="keyword">let</span> selected = selectedItem &#123;</div><div class="line">      selected(dataSource[pickerView.selectedRowInComponent(<span class="number">0</span>)])</div><div class="line">      <span class="keyword">self</span>.removeFromSuperview()</div><div class="line">      &#125;<span class="keyword">else</span> &#123;</div><div class="line">      <span class="built_in">fatalError</span>(<span class="string">"Error No implement of Clourse 'selectedItem: (String) -&gt; Void'"</span>)</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>用闭包来实现监听的回调。</p>
+<p>##使用</p>
+<p>使用起来灰常简单，就几句代码：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">var</span> pickerView = MaPickerView(frame: self<span class="selector-class">.view</span><span class="selector-class">.bounds</span>)</div><div class="line">pickerView<span class="selector-class">.dataSource</span> = [<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"C"</span>, <span class="string">"D"</span>]</div><div class="line">pickerView<span class="selector-class">.selectedItem</span> = &#123; selected <span class="keyword">in</span></div><div class="line">  println(selected)</div><div class="line">&#125;</div><div class="line">self<span class="selector-class">.view</span><span class="selector-class">.addSubview</span>(pickerView)</div></pre></td></tr></table></figure>
+<p>大功告成！</p>
+<p>##最后</p>
+<p>前面部分代码是学习的 <a href="http://www.superqq.com/blog/2015/07/06/ioskai-fa-zi-ding-yi-shi-jian-xuan-qu-qi/" target="_blank" rel="external">刚刚在线</a> 博客上的，不知道算不算抄袭，作为一只小菜鸟，在学习的路上，望大神见谅。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+        <div class="article-meta pull-left">
+          
+  
+
+  <span class="post-categories">
+    <i class="icon-categories"></i>
+    <a href="/categories/开发笔记/">开发笔记</a>
+  </span>
+
+
+          
+  
+
+  <span class="post-tags">
+    <i class="icon-tags"></i>
+    <a href="/tags/View/">View</a>
+  </span>
+
+
+        </div>
+        
+    </footer>
+  </div>
+</article>
+
+  
+
+
+
+    </main>
+
+    <footer id="colophon" class="site-footer" role="contentinfo"><p class="site-info">
+  Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+  Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+  </br>
+  
+  &copy; 2016 Zhenyu
+  
+</p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

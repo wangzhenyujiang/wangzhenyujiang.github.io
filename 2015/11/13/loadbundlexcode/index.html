@@ -1,0 +1,133 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>修复 Xcode Load Bundles 警告 | Secret</title>
+  <meta name="author" content="Zhenyu">
+  
+  <meta name="description" content="烦人的 Load Bundles">
+  
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="修复 Xcode Load Bundles 警告"/>
+  <meta property="og:site_name" content="Secret"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Secret" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div id="page" class="site">
+  <div id="primary" class="content-area">
+
+    <header id="header" class="inner"><div class="site-branding">
+  <h1 class="site-title">
+    <a href="/">Secret</a>
+  </h1>
+  <p class="site-description"></p>
+</div>
+<nav id="site-navigation" class="main-navigation" role="navigation">
+  <ul>
+    
+      <li><a href="/">主页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+</nav></header>
+
+    <main id="main" class="site-main posts-loop" role="main">
+      <article class="post article">
+
+  
+  
+    <h3 class="article-title"><span>修复 Xcode Load Bundles 警告</span></h3>
+  
+
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/11/13/loadbundlexcode/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-11-12T18:06:12.000Z">
+          2015-11-13
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>修复 Xcode Load Bundles 警告<br><a id="more"></a></p>
+<p>#修复 Xcode “Load Bundles” 警告</p>
+<p>如果你现没有使用 <code>Alcatraz</code> 来管理插件，那你快点试一试吧!!</p>
+<p>当你用 Alcatraz 安装新的插件时， 你可能需要重启你的 Xcode，但是有时你会遇到下面的对话框：</p>
+<p><img src="http://7xk9hm.com1.z0.glb.clouddn.com/Screen-Shot-2015-11-11-at-4-49-10-PM.png" alt=""></p>
+<p>如果你没有注意，你可能就会点击 “Skip Bundles”,但是这会导致你新安装的所有插件失效，这非常烦人。</p>
+<p>幸好这里有解决这个问题的办法，把下面这句代码粘到你终端中运行：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">defaults</span> <span class="selector-tag">delete</span> <span class="selector-tag">com</span><span class="selector-class">.apple</span><span class="selector-class">.dt</span><span class="selector-class">.Xcode</span> <span class="selector-tag">DVTPlugInManagerNonApplePlugIns-Xcode-7</span><span class="selector-class">.1</span><span class="selector-class">.1</span></div></pre></td></tr></table></figure>
+<p>点击回车并重启你的 Xcode.</p>
+<p>注意：命令最后的 Xcode 的版本非常重要！</p>
+
+      
+    </div>
+    <footer class="article-footer">
+        <div class="article-meta pull-left">
+          
+  
+
+  <span class="post-categories">
+    <i class="icon-categories"></i>
+    <a href="/categories/开发笔记/">开发笔记</a>
+  </span>
+
+
+          
+  
+
+  <span class="post-tags">
+    <i class="icon-tags"></i>
+    <a href="/tags/翻译/">翻译</a>
+  </span>
+
+
+        </div>
+        
+    </footer>
+  </div>
+</article>
+
+  
+
+
+
+    </main>
+
+    <footer id="colophon" class="site-footer" role="contentinfo"><p class="site-info">
+  Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+  Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+  </br>
+  
+  &copy; 2016 Zhenyu
+  
+</p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

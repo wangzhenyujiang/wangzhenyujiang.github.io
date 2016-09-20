@@ -1,0 +1,268 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS 碎碎念 | Secret</title>
+  <meta name="author" content="Zhenyu">
+  
+  <meta name="description" content="犄角旮旯的知识点">
+  
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="iOS 碎碎念"/>
+  <meta property="og:site_name" content="Secret"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Secret" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div id="page" class="site">
+  <div id="primary" class="content-area">
+
+    <header id="header" class="inner"><div class="site-branding">
+  <h1 class="site-title">
+    <a href="/">Secret</a>
+  </h1>
+  <p class="site-description"></p>
+</div>
+<nav id="site-navigation" class="main-navigation" role="navigation">
+  <ul>
+    
+      <li><a href="/">主页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+</nav></header>
+
+    <main id="main" class="site-main posts-loop" role="main">
+      <article class="post article">
+
+  
+  
+    <h3 class="article-title"><span>iOS 碎碎念</span></h3>
+  
+
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/06/08/iOS-Fragmentary-Knowledge/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-06-07T21:08:16.000Z">
+          2015-06-08
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>iOS 碎碎念<br><a id="more"></a></p>
+<p>##lazy</p>
+<p>把类中的某些值设置为 <code>lazy</code> 属性意味着它们只有在第一次使用时才会被初始化。这可以优化应用的表现。</p>
+<p>##rintf(Double)</p>
+<p>这个函数是一个四舍五入函数。</p>
+<p>##UIBezierPath fill</p>
+<p>当 UIBezierPath 在 drawRect 方法中调用 fill 方法的时候才会被绘制在当前上下文中。</p>
+<h2 id="contentMode"><a href="#contentMode" class="headerlink" title="contentMode"></a>contentMode</h2><p>UIView 的 contentMode 决定了如何调整视图。</p>
+<h2 id="CoreGraphics"><a href="#CoreGraphics" class="headerlink" title="CoreGraphics"></a>CoreGraphics</h2><p>CoreGraphics 使用 Core Foundation 内存管理规则。 Core Foundation 对象需要手动保留与释放，即便开启了 ARC。</p>
+<p>UIKit 采用左上角为原点的坐标系统， Core Graphics 采用左下角为原点的坐标系统。</p>
+<p>在 drawRect 方法中只要使用通过 UIGrahicsGetCurrentContext 返回的上下文，那么一切就正常了，因为这个上下文是已经反转过的。不过使用 CGBitmapContextCreate 这样的函数创建自己的上下文，他会以左下角为原点。</p>
+<p>##UIScrollViewDelegate</p>
+<p><code>scrollViewDidEndDragging:</code> 和 <code>scrollViewDidEndDecelerating:</code> 的区别：前者是停止拖拽的时候开始执行，后者是减速停止的时候开始执行</p>
+<p>##Swift mutableCopy 和 copy</p>
+<p><code>copy</code> :</p>
+<ul>
+<li>对于可变对象，<code>copy</code> 是深复制，引用计数不变，返回一个不可变对象</li>
+<li>对于不可变对象，<code>copy</code> 是浅复制，引用计数 +1，返回一个不可变对象</li>
+</ul>
+<p><code>mutableCopy</code>:</p>
+<ul>
+<li>始终深复制，返回一个可变对象。</li>
+</ul>
+<p><strong>注意</strong>: 在 Swift 中， <code>mutableCopy</code> 返回的是一个 AnyObject. 要对它用 <code>as</code> 进行适当的强制转换。</p>
+<p>##Swift join </p>
+<p>看完这个例子就可以：</p>
+<pre><code>var joiner = &quot;:&quot;
+var elements = [&quot;one&quot;,&quot;two&quot;, &quot;three&quot;]
+var joinedStrings = joiner.join(elements)
+println(joinedStrings)
+</code></pre><p>输出：</p>
+<pre><code>one:two:three
+</code></pre><h2 id="关联对象"><a href="#关联对象" class="headerlink" title="关联对象"></a>关联对象</h2><p><code>&lt;objc/runtime.h&gt;</code> 中定义的以下三个允许你将任何键值在运行时关联到对象上的函数：</p>
+<ul>
+<li><code>objc_setAssociatedObject</code></li>
+<li><code>objc_getAssociatedObject</code></li>
+<li><code>objc_removeAssociatedObjects</code></li>
+</ul>
+<blockquote>
+<p>因为这允许开发者对已经存在的类在扩展中添加自定义的属性，这几乎弥补了Objective-C最大的缺点。</p>
+</blockquote>
+<p>###一个 Swift 中的例子</p>
+<p>为 <code>UIImageView</code> 添加一个 imageURL 的属性：</p>
+<pre><code>static char key
+private var imageURL : NSURL? {
+    get {
+        return objc_getAssociatedObject(self, &amp;key) as? NSURL
+    }
+    set(url) {
+        objc_setAssociatedObject(self, &amp;key, url, UInt(OBJC_ASSOCIATION_RETAIN_NONATOMIC))
+    }
+}
+</code></pre><p>###Swift extension</p>
+<ul>
+<li>添加计算型实例属性和计算型类属性。</li>
+<li>添加嵌套类型。</li>
+<li>定义实例方法和类型方法</li>
+<li>提供新的初始化方法</li>
+<li>定义下标操作符</li>
+<li>让已存在的类实现一个协议</li>
+</ul>
+<p>###参考文章<br><a href="http://nshipster.cn/associated-objects/" target="_blank" rel="external">Associated Objects-Nshipster</a></p>
+<p><a href="http://southpeak.github.io/blog/2014/06/27/ios-swift-extension/" target="_blank" rel="external">Swift扩展(Extension)基础</a></p>
+<p>##OC 消息转发</p>
+<p>当需要消息转发的时候，系统有三套解决方案供你选择：</p>
+<p>###方案一</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">+(<span class="keyword">BOOL) </span>resolveInstanceMethod:(SEL)sel<span class="comment">;</span></div><div class="line">+(<span class="keyword">BOOL) </span>resolveClassMethod:(SEL)sel<span class="comment">;</span></div></pre></td></tr></table></figure>
+<p>###方案二</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-<span class="params">(id)</span>forwardingTargetForSeletor:<span class="params">(SEL)</span> aSelector;</div></pre></td></tr></table></figure>
+<p>###方案三</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">-<span class="params">(NSMethodSignature*)</span>methodSignatureForSelector:<span class="params">(SEL)</span>aSelector;</div><div class="line">-<span class="params">(void)</span>forwardInvocation:<span class="params">(NSInvocation*)</span>aninvocation;</div></pre></td></tr></table></figure>
+<p>###参考文章</p>
+<p><a href="">OC 消息转发</a></p>
+<p>##drawRect()</p>
+<p><img src="http://media.tumblr.com/tumblr_mdyk43n5jr1qatp4h.png" alt=""></p>
+<p>The <code>drawRect</code> method relies on Core Graphics to do the custom drawing, but its main drawback lies in the way it handles touch events: each time the button is pressed, <code>setNeedsDisplay</code> forces it to redraw.</p>
+<p>##<code>dispatch_async</code> &amp; <code>dispatch_sync</code></p>
+<p><code>dispatch_sync</code> 添加任务到一个队列，<strong>当前线程</strong>等待直到任务完成。<code>dispatch_async</code> 做类似的事情，但不同之处是<strong>当前线程</strong>不会等待任务的完成，而是立即继续“调用<strong>当前线程</strong>”的其它任务。</p>
+<p>##delay</p>
+<figure class="highlight maxima"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">let</span> <span class="built_in">time</span>: NSTimeInterval = <span class="number">2.0</span></div><div class="line"><span class="built_in">let</span> <span class="built_in">delay</span> = dispatch_time(DISPATCH_TIME_NOW, Int64(<span class="built_in">time</span> * Double(NSEC_PER_SEC)))</div><div class="line"></div><div class="line">dispatch_after(<span class="built_in">delay</span>, disptch_get_main_queue()) &#123;</div><div class="line">	println(<span class="string">"2 秒后输出"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>注意这种延迟的方式并不是严格的。</p>
+<p>###参考文章</p>
+<p><a href="http://swifter.tips/gcd-delay-call/" target="_blank" rel="external">Swifter-Tips</a></p>
+<p>##自定义控件跟踪用户操作</p>
+<p>###开始跟踪：</p>
+<pre><code>func beginTrackingWithTouch(touch: UITouch, event: UIEvent) -&gt; Bool{
+    super.beginTrackingWithTouch(touch: touch, event: event)
+
+    return true
+}
+</code></pre><p>当在控件 <code>bound</code> 内发生了一个触摸事件，首先会调用控件的 <code>beginTrackingWithTouch</code> 方法。该函数的触摸事件决定着： 当触摸事件是 <code>dragged</code> 时，是否需要响应。</p>
+<p>上面这个函数有两个参数： <code>touch</code> 对象和事件</p>
+<p>###持续跟踪：</p>
+<p>当用户进行 drag 时，会调用一个特殊的方法： <code>continueTrachingWithTouch</code>：</p>
+<pre><code>func continueTrackingWithTouch(touch: UITouch, event: UIEvent) -&gt; Bool {
+    super.continueTrackingWithTouch(touch: touch, event: event)
+    var touchPoint = touch.locationInView(self)
+
+    //do something with touchPoint
+
+    self.sendActionsForControlEvents( UIControlEventValueChanged)
+    return true
+}
+</code></pre><p><strong>注意：</strong>当界面需要随着手指的移动而发生改变的时候，要记得在自己的方法中调用 <code>setNeedDisplay</code> 方法来确保 <code>drawRect</code> 方法被调用，以尽快在界面上做出更新。</p>
+<p>###跟踪结束</p>
+<p>当跟踪结束的时候，会调用下面的方法：</p>
+<pre><code>func endTrackingWithTouch(touch: UITouch, event: UIEvent) {
+    super.endTrackingWithTouch(touch: touch, event: event)
+
+}
+</code></pre><p>###Target-Action 模式</p>
+<p>如果希望自己定制的控件与 <code>UIControl</code> 行为保持一致，那么当控件的值发生变化时，需要进行通知处理：使用 <code>sendActionsForControlEvents</code> 方法，并制定特定的事件类型，值改变对应的事件一般是 <code>UIControlEventValueChanged</code>。</p>
+<p>##When does layoutSubviews get called?</p>
+<blockquote>
+<p>You should override this method only if the autoresizing behaviors of the subviews do not offer the behavior you want.</p>
+</blockquote>
+<p>上面大概的意思是: 这个方法是当你需要在调整 subView 的大小的时候需要重写。</p>
+<ul>
+<li>初始化的时候不会调用 <code>layoutSubviews</code></li>
+<li><code>addSubview</code> 调用 <code>layoutSubviews</code></li>
+<li>设置<code>view</code>的<code>Frame</code>会触发<code>layoutSubviews</code>，当然前提是frame的值设置前后发生了变化</li>
+<li>滚动一个 <code>UIScrollView</code> 会触发 <code>scrollView</code> 的 <code>layoutSubViews</code> 和它的 <code>superView</code> 的 <code>layoutSubViews</code></li>
+<li>旋转 <code>Screen</code> 会触发父 <code>UIView</code> 上的 <code>layoutSubViews</code> </li>
+<li><code>removeFromSuperView</code> 只会触发 superView 的 <code>layoutViews</code></li>
+</ul>
+<p>###Display &amp; Layout</p>
+<ul>
+<li><code>setNeedsDisplay</code> 默认调用 <code>drawRect</code> 方法</li>
+<li><code>setNeedsLayout</code> 默认调用 <code>layoutSubViews</code> 方法</li>
+</ul>
+<p>###参考<br><a href="http://blog.logichigh.com/2011/03/16/when-does-layoutsubviews-get-called/" target="_blank" rel="external">When does layoutSubviews get called ?</a></p>
+<p>##Block 使用</p>
+<p>###作为本地变量</p>
+<figure class="highlight nimrod"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">returnType (^blockName)(parameterTypes) = ^returnType(parameterTypes) <span class="meta">&#123;...&#125;</span>;</div></pre></td></tr></table></figure>
+<p>###作为属性<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>(<span class="keyword">copy</span>)) returnType(^blockName)(parameterType);</div></pre></td></tr></table></figure></p>
+<p>###作为方法参数</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">- (<span class="name">void</span>) someMethodThatTaskBlocks(<span class="name">returnType</span>(^)(<span class="name">parameterType</span>))blockName</div></pre></td></tr></table></figure>
+<p>###方法参数调用的时候</p>
+<figure class="highlight nimrod"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[someObject someMethodThatTaskBlocks:^returnType (parameters)<span class="meta">&#123;...&#125;</span>];</div></pre></td></tr></table></figure>
+<p>###自定义类型</p>
+<figure class="highlight nimrod"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">typedef returnType(^<span class="type">TypeName</span>)(parameters);</div><div class="line"><span class="type">TypeName</span> blockName = ^returnType(parameters) <span class="meta">&#123;...&#125;</span></div></pre></td></tr></table></figure>
+<p>##理解 Layer 的 Mask 属性</p>
+<p><code>mask</code> 同样也是一个 <code>CALayer</code>。假设将 <code>CALayer</code> 本身称为 ContentLayer, 将 <code>mask</code> 称为 MaskLayer, Masking 的工作原理就是通过 MaskLayer 的 alpha 值定义为 ContentLayer 的显示区域：对于 ContentLayer 上每一个 Point, 计算公式为 <code>ResultLayer = ContentLayer * MaskLayer_Alpha</code>. 所以当 alpha 为 1 时 Content 显示， alpha 为 0 时 Content 不显示，其他处于 0 与 1 之间的值导致 Content 半透明。</p>
+<p>注意：</p>
+<ul>
+<li>MaskLayer 的 Color 不重要，主要是使用 opacity （CALayer 中的 alpha), 但是注意 <code>[UIColor clearColor]</code> 其实就是 alpha 为 0 的 color。</li>
+<li>ContentLayer 超出 MaskLayer 以外的部分不会被显示出来。</li>
+</ul>
+<p>###取差值</p>
+<p><code>CAShapeLayer</code> 的一个属性叫做 <code>fillRule</code>,如下代码：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">maskLayer<span class="selector-class">.fillRule</span> = kCAFillRuleEvenOdd</div></pre></td></tr></table></figure>
+<p>他会计算每一个像素上有多少 path 区域叠加，如果是奇数个，那么就绘制这个像素，如果是偶数个，那么就不绘制这个像素。</p>
+<p>##RunLoop 添加观察者的正确姿势</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">CFRunLoopRef</span> runloop = <span class="built_in">CFRunLoopGetCurrent</span>();</div><div class="line"><span class="built_in">CFRunLoopObserverRef</span> observer = <span class="built_in">CFRunLoopObserverCreateWithHandler</span>(kCFAllocatorDefault, kCFRunLoopBeforeSource, <span class="literal">true</span>, <span class="number">0</span>, ^(<span class="built_in">CFRunLoopObserverRef</span> oberver, <span class="built_in">CFRunLoopActivity</span> activity) &#123;</div><div class="line">	<span class="built_in">NSLog</span>(<span class="string">@"%@"</span>, <span class="string">@"睡觉"</span>)</div><div class="line">&#125;);</div><div class="line"><span class="built_in">CFRunLoopAddObserver</span>(runloop, observer, kCFRunLoopDefaultMode);</div></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+        <div class="article-meta pull-left">
+          
+  
+
+  <span class="post-categories">
+    <i class="icon-categories"></i>
+    <a href="/categories/开发笔记/">开发笔记</a>
+  </span>
+
+
+          
+        </div>
+        
+    </footer>
+  </div>
+</article>
+
+  
+
+
+
+    </main>
+
+    <footer id="colophon" class="site-footer" role="contentinfo"><p class="site-info">
+  Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+  Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+  </br>
+  
+  &copy; 2016 Zhenyu
+  
+</p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

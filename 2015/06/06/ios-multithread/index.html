@@ -1,0 +1,215 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS 多线程 | Secret</title>
+  <meta name="author" content="Zhenyu">
+  
+  <meta name="description" content="七手八脚地做事">
+  
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="iOS 多线程"/>
+  <meta property="og:site_name" content="Secret"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Secret" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div id="page" class="site">
+  <div id="primary" class="content-area">
+
+    <header id="header" class="inner"><div class="site-branding">
+  <h1 class="site-title">
+    <a href="/">Secret</a>
+  </h1>
+  <p class="site-description"></p>
+</div>
+<nav id="site-navigation" class="main-navigation" role="navigation">
+  <ul>
+    
+      <li><a href="/">主页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+</nav></header>
+
+    <main id="main" class="site-main posts-loop" role="main">
+      <article class="post article">
+
+  
+  
+    <h3 class="article-title"><span>iOS 多线程</span></h3>
+  
+
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/06/06/ios-multithread/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-06-06T12:28:52.000Z">
+          2015-06-06
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>iOS 多线程<br><a id="more"></a></p>
+<p>##快速比较 GCD 和 NSOperation</p>
+<p><strong>GCD</strong> 以一种轻量级的方式来表示并发的工作。你不能规划(schedule)这些工作，而是由系统来为你规划。在任务间添加依赖会很头疼。取消或者挂起任务需要额外的工作量。</p>
+<p><strong>NSOperation</strong> 较之 GCD 增加了一些额外的开销，但是你可以在多个任务间添加依赖，并且可以重用，取消或是挂起它们。</p>
+<p>##NSOperation</p>
+<p>使用 <code>NSOperation</code> 只需要两个关键步骤：</p>
+<ul>
+<li>子类化一个自己的 <code>NSOperation</code></li>
+<li>重写 main 方法</li>
+</ul>
+<p>经常用到的方法：</p>
+<ul>
+<li><code>Cancelled</code> : 用来判断任务是否被取消</li>
+<li><code>Priority</code> : 设置任务的优先级</li>
+<li><code>Dependency</code> : 设置任务之间的依赖关系</li>
+<li><code>Completion block</code> : 设置任务完成后的事件</li>
+</ul>
+<p><strong>注意：</strong> 当一个 <code>NSOperation</code> 被加入到队列中的时候，会自动调用 <code>start</code> 方法开始执行。</p>
+<p>class MyOperation: NSOperation {</p>
+<pre><code>    //mark: Variable
+
+    init(variable: MyClass){
+        self.variable = variable
+    }
+
+    override func main() {
+
+        //mark: do something
+
+        if self.cancelled {
+            return 
+        }
+
+        //mark: do something
+
+        if self.cancelled {
+            return 
+        }
+
+        //mark: do something
+    }
+
+    //mark: Private Function
+}
+</code></pre><p>使用：</p>
+<pre><code>var myOperation = MyOperation(...)
+myOperation.completionBlock = {
+    //mark: do something
+}
+queue.addOperation(myOperation)
+
+myOperation.cancle() //取消任务
+
+/**
+添加依赖
+*/
+let operation1 = MyOperation()
+let operation2 = MyOperation()
+
+operation1.addDependency(operation2) //添加依赖
+operation2.removeDependency(operation2) //去除依赖
+</code></pre><p>注意： 如果一项任务所依赖的任务被撤销了，这项任务也会开始执行，就像它所依赖的任务完成了一样。</p>
+<p>##NSOperationQueue</p>
+<p>使用 <code>NSOPerationQueue</code>:</p>
+<ul>
+<li>初始化一个 <code>NSOperationQueue</code></li>
+<li>设置属性</li>
+<li>添加 <code>Operation</code></li>
+</ul>
+<p>经常用到的属性和方法:</p>
+<ul>
+<li><code>Concurrent operations</code>: 返回一个数组，是正在执行的所有 operation</li>
+<li><code>Max number of concurrent operations</code>: 可同时运行的最大线程数</li>
+<li><code>Add Operation</code>: 添加任务</li>
+<li><code>Pending operations</code>: 返回等待执行的 operation 的数组</li>
+<li><code>Suspend queue</code>: 挂起队列，队列中的所有任务将被挂起，暂停执行</li>
+</ul>
+<pre><code>var myQueue = NSOperationQueue()
+myQueue.name = &quot;myQueue&quot;
+myQueue.maxCurrentOperationCount = 1
+</code></pre><p>##一个小的 TableView 优化技巧</p>
+<p><strong>核心思路是：</strong>只处理在可见区域的 <code>Cell</code>，将不可见区的 <code>Cell</code> 的网络任务以及一些占用 CPU 的任务给取消掉。</p>
+<ul>
+<li>当 <code>TableView</code> 滑动的时候挂起所有任务。当停止滑动的时候开始任务。</li>
+<li>针对性的开启任务(只开启可见 <code>Cell</code> 的一些后台任务，划出屏幕的 <code>Cell</code> 的任务取消)</li>
+</ul>
+<p>处理 <code>TableView</code> 的可见 <code>Cell</code>:</p>
+<pre><code>/**
+获得所有可见 Cell 的方法
+*/
+let pathsArray = tableView.indexPathsForVisibleRows()
+
+/**
+针对直接刷新某一个 Cell 的方法
+*/
+self.tableView..reloadRowsAtIndexPaths([indexPath]) //方法接收的参数是一个 NSIndexPath 类型的数组
+</code></pre><p>##参考文章</p>
+<p><a href="http://loveltyoic.com/blog/2015/02/03/use-nsoperation-nsoperationqueue-swift/" target="_blank" rel="external">在 Swift 中使用 NSOperation 和 NSOperationQueue</a></p>
+<p><a href="https://github.com/nixzhu/dev-blog/blob/master/2014-04-19-grand-central-dispatch-in-depth-part-1.md" target="_blank" rel="external">GCD 深入理解：第一部分</a></p>
+<p><a href="https://github.com/nixzhu/dev-blog/blob/master/2014-05-14-grand-central-dispatch-in-depth-part-2.md" target="_blank" rel="external">GCD 深入理解：第二部分</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+        <div class="article-meta pull-left">
+          
+  
+
+  <span class="post-categories">
+    <i class="icon-categories"></i>
+    <a href="/categories/iOS-MultiThread/">iOS MultiThread</a>
+  </span>
+
+
+          
+        </div>
+        
+    </footer>
+  </div>
+</article>
+
+  
+
+
+
+    </main>
+
+    <footer id="colophon" class="site-footer" role="contentinfo"><p class="site-info">
+  Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+  Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+  </br>
+  
+  &copy; 2016 Zhenyu
+  
+</p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

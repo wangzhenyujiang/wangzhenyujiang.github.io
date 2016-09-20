@@ -1,0 +1,199 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>用 CAShapeLayer 创建一个 iOS 的指示器 | Secret</title>
+  <meta name="author" content="Zhenyu">
+  
+  <meta name="description" content="画个圈圈诅咒你">
+  
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="用 CAShapeLayer 创建一个 iOS 的指示器"/>
+  <meta property="og:site_name" content="Secret"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Secret" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div id="page" class="site">
+  <div id="primary" class="content-area">
+
+    <header id="header" class="inner"><div class="site-branding">
+  <h1 class="site-title">
+    <a href="/">Secret</a>
+  </h1>
+  <p class="site-description"></p>
+</div>
+<nav id="site-navigation" class="main-navigation" role="navigation">
+  <ul>
+    
+      <li><a href="/">主页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+</nav></header>
+
+    <main id="main" class="site-main posts-loop" role="main">
+      <article class="post article">
+
+  
+  
+    <h3 class="article-title"><span>用 CAShapeLayer 创建一个 iOS 的指示器</span></h3>
+  
+
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/06/02/CAShapeLayer-Create-iOS-indifiter/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-06-01T21:45:36.000Z">
+          2015-06-02
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>用 CAShapeLayer 创建一个 iOS 的指示器</p>
+<a id="more"></a>
+<p><a href="http://zappdesigntemplates.com/cashapelayer-to-create-a-custom-progressbar/" target="_blank" rel="external">原文链接</a></p>
+<p>在这篇教程中，我想给你展示一下在 <code>Swift</code> 中，怎么用 <code>CAShapeLayer</code> 创建一个活动指示器。</p>
+<p><code>CAShapeLayer</code> 有着强大的功能，你可以在它上面画出任何形状的图形，而且甚至可以让你的图形按着你的想法动起来。所以，它是你创建自定义指示器的不二选择。</p>
+<p>##我们该怎么做呢？</p>
+<p>我们想用 <code>CAShapeLayer</code> 来创建一个自定义的指示器，当我们的内容加载的时候我们会让它动起来。我们不用那种普通的圆或者一个直线来表示我们的指示器，你可以用 <code>CAShapeLayer</code> 来创建你自己的图形并让它动起来。</p>
+<p>比如：你的公司 Logo 是一个星星的形状，当你的内容在后台加载的时候，你想把公司的 Logo 做为你的指示器。那么你需要下面这些：</p>
+<ul>
+<li>图标形状的 <code>CAShapeLayer</code>(这很容易用 <a href="http://www.paintcodeapp.com/" target="_blank" rel="external">PaintCode</a>)来做</li>
+<li>把自定义的 View 放在上面，而且重用性要好</li>
+</ul>
+<p>上面这些就够了。动画是很简单的。你简单的创建一个 <code>CABasicAnimation</code> 就可以让它动起来。</p>
+<p>就像这样：</p>
+<pre><code>let animation = CABasicAnimation(keyPath: &quot;strokeEnd&quot;)
+animation.fromValue = CGFloat(0.0)
+animation.toValue   = CGFloat(1.0)
+animation.duration  = 1.0
+animation.delegate  = self
+animation.removedOnCompletion = false
+animation.additive = true
+animation.fillMode = kCAFillModeForwards
+progressLayer.addAnimation(animation, forKey: &quot;strokEnd&quot;)
+</code></pre><p>如果你想展示自己内容加载程度的话，你可以设置 <code>CAShapeLayer</code> 的 <code>strokeEnd</code> 和 <code>strokeStart</code> 属性。<code>strokeEnd</code> 和 <code>strokeSatrt</code>可以定义你的 <code>layer</code> 的开始点和结束点。这两个属性的值都介于 0.0 和 1.0 之间。你可以通过计算内容的百分比来适当的设置这两个属性的值来控制你的指示器。</p>
+<p>下面，译者解释一下 <code>fillMode</code> 属性：</p>
+<p>###fillMode</p>
+<p><code>fillMode</code> 的作用就是决定过了当前对象过了非 active 时间段的行为。比如动画开始之前，动画结束之后。如果是一个动画 <code>CAAnimation</code>， 怎需要将其 <code>removedOnCompletion</code> 设置为 <code>false</code>，要不然 <code>fillMode</code> 不起作用。</p>
+<p><code>fillMode</code> 有四种不同的属性：</p>
+<p>####kCAFillModeRemoved</p>
+<p>这个是默认值，也就是说当动画开始之前和动画结束后，动画对 <code>layer</code> 都没有影响，动画结束后， <code>layer</code> 会恢复到之前的状态</p>
+<p>####kCAFillModeForwards</p>
+<p>当动画结束后,layer会一直保持着动画最后的状态</p>
+<p>####kCAFillModeBackwards</p>
+<p>这个和 <code>kCAFillModeForwards</code> 是相对的,就是在动画开始前,你只要将动画加入了一个<code>layer</code>,<code>layer</code>便立即进入动画的初始状态并等待动画开始.你可以这样设定测试代码,将一个动画加入一个<code>layer</code>的时候延迟5秒执行.然后就会发现在动画没有开始的时候,只要动画被加入了<code>layer</code>,<code>layer</code>便处于动画初始状态</p>
+<p>####kCAFillModeBoth</p>
+<p>理解了上面两个,这个就很好理解了,这个其实就是上面两个的合成.动画加入后开始之前,<code>layer</code>便处于动画初始状态,动画结束后<code>layer</code>保持动画最后的状态</p>
+<p>##开始写代码</p>
+<p>就像我前面提到的，你需要一个 <code>CAShapeLayer</code> 来创建你的指示器，看下面的代码：</p>
+<pre><code>private func crateProgressLayer() {
+    let startAngle = CGFloat(M_PI_2)
+    let endAngle = CGFloat(M_PI_2 * 2 + M_PI_2)
+    let centerPoint = CGPointMake(CGRentGetWidth(frame)/2, CGRentGetHeight(frame)/2)
+
+    progressLayer.path = UIBezierPath(arcCenter:centerPoint, radius: CGRectGetWidth(frame)/2 - 30.0, startAngle:startAngle, endAngle:endAngle, clockwise: true).CGPath
+    progressLayer.backgroundColor = UIColor.clearColor().CGColor
+    progressLayer.fillColor = nil
+    progressLayer.strokeColor = UIColor.blackColor().CGColor
+    progressLayer.lineWidth = 4.0
+    progressLayer.strokeStart = 0.0
+    progressLayer.strokeEnd = 0.0
+
+    layer.addSublayer(prigressLayer)
+}
+</code></pre><p>##让它动起来</p>
+<p>就像上面提到的，我们将用一个 <code>CABaseAnimation</code> 来让它动起来,代码也很简单：</p>
+<pre><code>func animateProgressView() {
+
+    let animation = CABasicAnimation(keyPath: &quot;strokeEnd&quot;)
+    animation.fromValue = CGFloat(0.0)
+    animation.toValue = CGFloat(1.0)
+    animation.duration = 1.0
+    animation.delegate = self
+    animation.removedOnCompletion = false
+    animation.additive = true
+    animation.fillMode = kCAFillModeForwards
+    progressLayer.addAnimation(animation, forKey: &quot;strokeEnd&quot;)
+}
+</code></pre><p>如果还有些困惑，源码里讲的很清楚：<br><a href="https://s3-us-west-2.amazonaws.com/zappfreebies/other/ZappDesignTemplates-CustomProgressBar.zip" target="_blank" rel="external">源码下载</a></p>
+<p>##其他资源</p>
+<p>基础知识预备：</p>
+<p><a href="http://geeklu.com/2012/09/animation-in-ios/" target="_blank" rel="external">谈谈iOS Animation</a></p>
+<p>关于 CAShapeLayer 更多有趣内容，请见：</p>
+<p><a href="http://edsioon.me/cashapelayer-introduction/" target="_blank" rel="external">CAShapeLayer简介</a></p>
+<p><a href="http://jamesonquave.com/blog/fun-with-cashapelayer/" target="_blank" rel="external">Fun with CAShapeLayer</a></p>
+<p>另一篇自定义 Activity Indicator 英文教程：</p>
+<p><a href="http://yuryev.me/Custom-activity-indicator-with-swift/" target="_blank" rel="external">Custom activity indicator with swift</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+        <div class="article-meta pull-left">
+          
+  
+
+  <span class="post-categories">
+    <i class="icon-categories"></i>
+    <a href="/categories/翻译笔记/">翻译笔记</a>
+  </span>
+
+
+          
+  
+
+  <span class="post-tags">
+    <i class="icon-tags"></i>
+    <a href="/tags/Animation/">Animation</a>
+  </span>
+
+
+        </div>
+        
+    </footer>
+  </div>
+</article>
+
+  
+
+
+
+    </main>
+
+    <footer id="colophon" class="site-footer" role="contentinfo"><p class="site-info">
+  Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+  Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+  </br>
+  
+  &copy; 2016 Zhenyu
+  
+</p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS 响应链 | Secret</title>
+  <meta name="author" content="Zhenyu">
+  
+  <meta name="description" content="点我点我点我">
+  
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="iOS 响应链"/>
+  <meta property="og:site_name" content="Secret"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Secret" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div id="page" class="site">
+  <div id="primary" class="content-area">
+
+    <header id="header" class="inner"><div class="site-branding">
+  <h1 class="site-title">
+    <a href="/">Secret</a>
+  </h1>
+  <p class="site-description"></p>
+</div>
+<nav id="site-navigation" class="main-navigation" role="navigation">
+  <ul>
+    
+      <li><a href="/">主页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+</nav></header>
+
+    <main id="main" class="site-main posts-loop" role="main">
+      <article class="post article">
+
+  
+  
+    <h3 class="article-title"><span>iOS 响应链</span></h3>
+  
+
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/06/04/iOS-Response-Chain/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-06-03T19:01:48.000Z">
+          2015-06-04
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>iOS 响应链<br><a id="more"></a></p>
+<p>##响应链是什么？</p>
+<blockquote>
+<p>响应链是iOS触摸事件的一种传递机制，深入理解对于提高开发能力至关重要。</p>
+</blockquote>
+<p>在 <code>UIKit</code> 中有一个类： <code>UIResponder</code>，我们可以看看头文件中的几个方法：</p>
+<pre><code>-(UIResponser *)nextResponsder;
+
+-(Bool)canBecomeFirstResponsder;
+-(Bool)becomeFirstResponsder;
+
+-(Bool)canResignFirstResponsder;
+-(Bool) becomeFirstResponsder;
+</code></pre><p>其中，<code>becomeFirstResponsder</code> <code>becomeFirstResponsder</code> 这两个方法因为经常处理 <code>UITextField</code> 等控件的键盘事件而被大家熟知。<code>UIResponder</code> 是所有可以响应事件的类的基类，其中包括 <code>UIView</code> <code>UIViewController</code> 甚至是 <code>UIApplication</code>。所以，继承自 <code>UIView</code> 的类都可以作为响应事件的载体。</p>
+<p>当一个 <code>view</code> 被添加到 <code>superView</code> 上的时候，他的 <code>nextResponsder</code> 属性就会被指向它的 <code>superView</code>。而 <code>Viewcontroller</code> 的跟视图(self.view)的 <code>nextResponsder</code> 属性指向的是 <code>ViewController</code>。<code>ViewController</code> 的 <code>nextResopnsder</code> 属性会指向 <code>self.view</code> 的 <code>superView</code>.因为所有的视图都是一个树状结构，所以，通过 <code>nextResponsder</code> 就变成了一条虚拟的链，叫做响应者链。</p>
+<p>##事件第一响应者是怎么确定的？</p>
+<blockquote>
+<p>有了响应者链，接下来的事情就是寻找响应事件的具体响应者了，我们称之为 Hit-Testing View, 寻找这个 View 的过程我们称之为 Hit-Test.</p>
+</blockquote>
+<p><code>UIView</code> 有如下两个方法：</p>
+<pre><code>-(UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event;
+-(Bool)pointInside:(CGPoint)point withEvent:(UIEvent *)event;
+</code></pre><p>每当手指接触屏幕，<code>UIApplication</code> 接收到手指的事件之后，就会去调用<code>UIWindow</code>的<code>hitTest:withEvent:</code>，看看当前点击的点是不是在<code>window</code>内，如果是则继续依次调用<code>subView</code>的<code>hitTest:withEvent:</code>方法，直到找到最后需要的<code>view</code>。调用结束并且 hit-test view 确定之后，这个 view 和 view 上面依附的手势，都会和一个<code>UITouch</code>的对象关联起来，这个<code>UITouch</code>会作为事件传递的参数之一，我们可以看到<code>UITouch</code>头文件里面有一个<code>view</code>和<code>gestureRecognizers</code>的属性，就是 hitTest view 和它的手势。</p>
+<p>根据上面的原理，下面写出了原生的 <code>hitTest:withEvent:</code> 方法的<strong>可能</strong>实现方式，是用递归实现的：</p>
+<pre><code>func hitTest(point: CGPoint, withEvent event: UIEvent?) -&gt; UIView? {
+   if (!self.isUerInteractionEnabled || self.isHidden || self.alpha &lt;= 0.01) {
+       return nil
+   }
+
+   if (self.pointInside(point: point,withEvent: event)){
+       for(var subview in self.subviews.reverseObjectEnumerator){
+           var convertedPoint = subview.converPoint(point: point fromView: self)
+           var hitTestView = subview.hitTest(point: convertedPoint withEvent: event)
+           if (hitTestView) {
+               return hitTestView
+           }
+       }
+       return self
+   }    
+   return nil
+}
+</code></pre><p>##第一响应者确定后系统是怎样传递事件的？</p>
+<p>有了响应链和第一响应者，接下来就是把事件发送到这个响应者了。 <code>UIApplication</code> 有一个 <code>sendEvent:</code> 的方法，在 <code>UIWindow</code> 中同样也可以发现一个同样的方法。 <code>UIApplication</code> 是通过这个方法吧事件发送给 <code>UIWindow</code>,然后 <code>UIWindow</code> 通过同样的接口，把事件发送给 <code>hit-TestView</code>。如果第一响应者没有响应这个事件，那么就会根据响应链，把事件冒泡传递给<code>nextResponder</code>来响应。</p>
+<p>需要说明的是，如果当前的 responder 不处理事件，并希望将其传递给 nextResponder 时，需要手动编写代码，才会继续往下传递，否则事件会被废弃。</p>
+<pre><code>-(void)touchesBegan: (NSSet *)touches withEvent:(UIEvent *)event {
+    //将事件传递给 nextResponder
+    id theNextResponsder = [self nextResponsder];
+    [the nextResponsder touchBegan:touches withEvent:event];
+}
+</code></pre><p>##覆盖 hitTest:withEvent: 的一些用途</p>
+<p><code>hitTest:withEvent:</code> 可以被覆盖来完成一些有趣的任务。</p>
+<h3 id="增加视图的触摸区域"><a href="#增加视图的触摸区域" class="headerlink" title="增加视图的触摸区域"></a>增加视图的触摸区域</h3><p>新建一个工程，自定义一个 <code>TestViewButton</code> 类 继承自 <code>UIButton</code>，在 SB 上放置一个按钮，并把按钮的类别设置为 <code>TestViewButton</code>。在 <code>ViewController</code> 中连接好 <code>IBAction</code>。这样,准备工作就做好了，开始 Coding…</p>
+<p>增加视图的触摸区域有两种方式实现，一种是重写 <code>hitTest</code> 方法，一种是重写 <code>pointInside</code> 方法。</p>
+<p>####重写 hitTest</p>
+<pre><code>override func hitTest(point: CGPoint, withEvent event: UIEvent?) -&gt; UIView? {
+    if (!self.userInteractionEnable || self.hidden || self.alpha &lt;= 0.01) {
+        return nil
+    }
+
+    var touchRect = CGRectInset(self.bounds, -30, -30)
+    if (CGRectContaintPoint(touchRect, point)) {
+        for subView in self.subViews.reserse() {
+            var convertedPoint = subView.convertPoint(point, fromView: self)
+            var hitTestView = subView.hitTest(convertPoint, withEvent: event)
+            if let view = hitTestView {
+                return view
+            }
+        }
+        return self
+    }
+    return nil
+}
+</code></pre><p>在原生的 hitTest 方法中调用 pointInside 方法来判断触摸点是否在自己的范围内，如果在就会继续执行下去。我们重写了 hitTest 方法，将其判断的范围增大(touchRect)，从而增大了视图的触摸区域。</p>
+<p><strong>注意：</strong>在 <code>for</code> 循环中，对 <code>subViews</code> 的遍历是反向遍历的。因为越在上层的子视图在 <code>subViews</code> 数组的后端。而正确的 <code>hitTest</code> 顺序是从最上层的子视图开始遍历, 所以必须是倒序的。</p>
+<p>####重写 pointInside </p>
+<pre><code>override func pointInside(point: CGPoint, withEvent event: UIEvent) -&gt; Bool {
+    var touchRect = CGRectInset(self.bounds, -30, -30)
+    if CGRectContainsPoint(touchRect, point) {
+        return true
+    }
+    return false
+}
+</code></pre><p>当使用这个方法的事就就不许要重写 <code>hitTest</code> 方法了，上面说到，原生的 <code>hitTest</code> 方法是通过 <code>pointInside</code> 方法来判断点是否在自己的范围内的，那我们就可以直接改变 <code>pointInside</code> 返回 <code>true</code> 的区域范围就可以实现改变触摸范围的需求。</p>
+<p>####最终实现效果：</p>
+<p><img src="http://7xjb2y.com1.z0.glb.clouddn.com/buttonRect.gif" alt=""></p>
+<h3 id="传递触摸事件给子视图"><a href="#传递触摸事件给子视图" class="headerlink" title="传递触摸事件给子视图"></a>传递触摸事件给子视图</h3><pre><code>func hitTest(point: CGPoint, withEvent: event) {
+    var hitTestView: UIView? = super.hitTest(point, event)
+    if let view hitTextView {
+        hitTextView = self.subView
+    }
+    return hitTestView
+}
+</code></pre><p>##参考文章：</p>
+<p><a href="http://smnh.me/hit-testing-in-ios/" target="_blank" rel="external">Hit-Testing in iOS</a>  (<a href="http://joywii.github.io/blog/2015/03/17/ioszhong-de-hit-testing/" target="_blank" rel="external">中文译文</a>)</p>
+<p><a href="http://zhoon.github.io/ios/2015/04/12/ios-event.html" target="_blank" rel="external">深入浅出iOS事件机制</a></p>
+<p><a href="http://ryantang.me/blog/2013/12/07/ios-event-dispatch-1/" target="_blank" rel="external">iOS事件机制(一)</a></p>
+<p><a href="https://www.zybuluo.com/MicroCai/note/66142" target="_blank" rel="external">iOS Events and Responder Chain</a></p>
+<p><a href="http://www.superqq.com/blog/2015/04/23/iosyong-hu-dian-ji-shi-jian-chu-li/" target="_blank" rel="external">刚刚在线</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+        <div class="article-meta pull-left">
+          
+  
+
+  <span class="post-categories">
+    <i class="icon-categories"></i>
+    <a href="/categories/学习笔记/">学习笔记</a>
+  </span>
+
+
+          
+  
+
+  <span class="post-tags">
+    <i class="icon-tags"></i>
+    <a href="/tags/Responder-Chain/">Responder Chain</a>
+  </span>
+
+
+        </div>
+        
+    </footer>
+  </div>
+</article>
+
+  
+
+
+
+    </main>
+
+    <footer id="colophon" class="site-footer" role="contentinfo"><p class="site-info">
+  Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+  Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+  </br>
+  
+  &copy; 2016 Zhenyu
+  
+</p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

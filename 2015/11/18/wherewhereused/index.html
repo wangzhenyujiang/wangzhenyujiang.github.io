@@ -1,0 +1,140 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Swift where 关键词用法大全 | Secret</title>
+  <meta name="author" content="Zhenyu">
+  
+  <meta name="description" content="哪里哪里哪里...奥">
+  
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="Swift where 关键词用法大全"/>
+  <meta property="og:site_name" content="Secret"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Secret" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div id="page" class="site">
+  <div id="primary" class="content-area">
+
+    <header id="header" class="inner"><div class="site-branding">
+  <h1 class="site-title">
+    <a href="/">Secret</a>
+  </h1>
+  <p class="site-description"></p>
+</div>
+<nav id="site-navigation" class="main-navigation" role="navigation">
+  <ul>
+    
+      <li><a href="/">主页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+</nav></header>
+
+    <main id="main" class="site-main posts-loop" role="main">
+      <article class="post article">
+
+  
+  
+    <h3 class="article-title"><span>Swift where 关键词用法大全</span></h3>
+  
+
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/11/18/wherewhereused/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-11-17T20:09:34.000Z">
+          2015-11-18
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>Swift where 关键词用法大全<br><a id="more"></a></p>
+<p>#Where “where” may be used</p>
+<p>这是在 <code>Swift</code> 中很常见的代码：</p>
+<figure class="highlight maxima"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">let</span> arr = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>]</div><div class="line"><span class="built_in">let</span> dict = [<span class="number">1</span>: <span class="string">"one"</span>, <span class="number">2</span>: <span class="string">"two"</span>]</div><div class="line"></div><div class="line"><span class="keyword">for</span> <span class="built_in">num</span> <span class="keyword">in</span> arr where dict[<span class="built_in">num</span>] != nil &#123;</div><div class="line">	pirnt(<span class="built_in">num</span>) //<span class="number">1</span>, <span class="number">2</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>灰常 Nice 啊，这是非常 cool 但是很容易忘记的 <code>Siwft</code> 特性。事实上 <code>where</code> 关键字的用处非常广泛，在 <code>switch</code> 语句，<code>catch</code> 分支语句或者条件语句比如 <code>if</code>, <code>while</code>, <code>guard</code>, <code>for-in</code> 或者来限制类型的时候。</p>
+<p>##<code>for-in</code></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>]</div><div class="line"><span class="keyword">let</span> dict = [<span class="number">1</span>: <span class="string">"one"</span>, <span class="number">2</span>: <span class="string">"two"</span>]</div><div class="line"></div><div class="line"><span class="keyword">for</span> num <span class="keyword">in</span> arry <span class="keyword">where</span> dict[num] != <span class="literal">nil</span> &#123;</div><div class="line">	<span class="comment">//1, 2</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>##<code>do-catch</code></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">enum</span> <span class="title">ResponseError</span>: <span class="title">ErrorType</span> </span>&#123;</div><div class="line">	<span class="keyword">case</span> <span class="type">HTTP</span>(<span class="type">Int</span>)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">errorProne</span><span class="params">()</span></span> <span class="keyword">throws</span> &#123;</div><div class="line">	<span class="keyword">throw</span> <span class="type">ResponseError</span>.<span class="type">HTTP</span>(<span class="number">404</span>)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">do</span> &#123;</div><div class="line">	<span class="keyword">try</span> errorProne()</div><div class="line">&#125;<span class="keyword">catch</span> <span class="type">ResponseError</span>.<span class="type">HTTP</span>(<span class="keyword">let</span> code) <span class="keyword">where</span> code &gt;= <span class="number">400</span> &amp;&amp; code % <span class="number">2</span> == <span class="number">0</span> &#123;</div><div class="line">	<span class="built_in">print</span>(<span class="string">"Bad Request"</span>) <span class="comment">//match</span></div><div class="line">&#125;<span class="keyword">catch</span> <span class="type">ResponseError</span>.<span class="type">HTTP</span>(<span class="keyword">let</span> code) <span class="keyword">where</span> code &gt;= <span class="number">50</span> &amp;&amp; code &lt; <span class="number">600</span> &#123;</div><div class="line">	<span class="built_in">print</span>(<span class="string">"Internal Server Error"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>##<code>while</code><br><figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> mutableArray: [<span class="type">Int</span>]? = []</div><div class="line"><span class="keyword">while</span> <span class="keyword">let</span> arr = mutableArray  <span class="keyword">where</span> arr.<span class="built_in">count</span> &lt; <span class="number">5</span> &#123;</div><div class="line">	mutableArray?.append(<span class="number">0</span>) <span class="comment">//[0,0,0,0,0]</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>##<code>if</code></p>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> <span class="keyword">string</span>: <span class="keyword">String</span>? = <span class="string">"checkmate"</span></div><div class="line"><span class="keyword">if</span> <span class="keyword">let</span> str = <span class="keyword">string</span> <span class="built_in">where</span> str != <span class="string">"checkmate"</span>&#123;</div><div class="line">	<span class="keyword">print</span>(<span class="string">"game over"</span>)</div><div class="line">&#125;<span class="keyword">else</span> &#123;</div><div class="line">	<span class="keyword">print</span>(<span class="string">"Lte's play"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>##<code>guard</code></p>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> <span class="keyword">string</span>: <span class="keyword">String</span>? = <span class="string">"checkmate"</span></div><div class="line">guard <span class="keyword">let</span> str = <span class="keyword">string</span> <span class="built_in">where</span> str != <span class="string">"checkmate"</span> <span class="keyword">else</span>&#123;</div><div class="line">	fataError(<span class="string">"game over"</span>)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">print</span>(<span class="string">"Let's play"</span>)</div></pre></td></tr></table></figure>
+<p>##<code>switch-case</code></p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> <span class="keyword">value</span> = (<span class="number">1</span>, <span class="number">2</span>)</div><div class="line"><span class="keyword">switch</span> <span class="keyword">value</span> &#123;</div><div class="line">	<span class="function"><span class="keyword">case</span> <span class="title">let</span> (<span class="params">x, y</span>) <span class="keyword">where</span> x </span>== <span class="number">1</span>:</div><div class="line">		<span class="comment">//</span></div><div class="line">	<span class="function"><span class="keyword">case</span> <span class="title">let</span> (<span class="params">x, y</span>) <span class="keyword">where</span> x / 5 </span>= <span class="number">1</span>:</div><div class="line">		<span class="comment">//</span></div><div class="line">	<span class="keyword">default</span>:</div><div class="line">	</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>##<code>type constraint</code><br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">genericFunction</span>&lt;<span class="title">S</span> <span class="title">where</span> <span class="title">S</span>: <span class="title">StringLiteralConvertible</span>&gt;<span class="params">(<span class="keyword">string</span>: S)</span></span> &#123;</div><div class="line">	<span class="built_in">print</span>(<span class="keyword">string</span>)</div><div class="line">&#125; </div><div class="line">genericFunction(<span class="string">"lambada"</span>)</div></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    <footer class="article-footer">
+        <div class="article-meta pull-left">
+          
+  
+
+  <span class="post-categories">
+    <i class="icon-categories"></i>
+    <a href="/categories/Swift/">Swift</a>
+  </span>
+
+
+          
+  
+
+  <span class="post-tags">
+    <i class="icon-tags"></i>
+    <a href="/tags/Swift/">Swift</a>
+  </span>
+
+
+        </div>
+        
+    </footer>
+  </div>
+</article>
+
+  
+
+
+
+    </main>
+
+    <footer id="colophon" class="site-footer" role="contentinfo"><p class="site-info">
+  Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+  Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+  </br>
+  
+  &copy; 2016 Zhenyu
+  
+</p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

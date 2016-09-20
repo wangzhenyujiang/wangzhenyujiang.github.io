@@ -1,0 +1,213 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Alamofire 读后感 | Secret</title>
+  <meta name="author" content="Zhenyu">
+  
+  <meta name="description" content="请求一颗两颗连成串">
+  
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="Alamofire 读后感"/>
+  <meta property="og:site_name" content="Secret"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Secret" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div id="page" class="site">
+  <div id="primary" class="content-area">
+
+    <header id="header" class="inner"><div class="site-branding">
+  <h1 class="site-title">
+    <a href="/">Secret</a>
+  </h1>
+  <p class="site-description"></p>
+</div>
+<nav id="site-navigation" class="main-navigation" role="navigation">
+  <ul>
+    
+      <li><a href="/">主页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+</nav></header>
+
+    <main id="main" class="site-main posts-loop" role="main">
+      <article class="post article">
+
+  
+  
+    <h3 class="article-title"><span>Alamofire 读后感</span></h3>
+  
+
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2016/01/23/read-alamofire/" rel="bookmark">
+        <time class="entry-date published" datetime="2016-01-23T10:54:39.000Z">
+          2016-01-23
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>Alamofire 读后感<br><a id="more"></a></p>
+<blockquote>
+<p>Alamofire 是 github 上一个开源的网络库，用 Swift 语言编写，作者就是著名的 AFNetWorking 的作者，所以这个库在业界迅速推开，成为每一个 Swift 工程必备的网络请求神器。</p>
+</blockquote>
+<p>文章将会从下面这段代码入手，带你领略 <code>Alamofire</code> 的奥秘和 <code>Swift</code> 的风骚~！</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">Alamofire.request(<span class="selector-class">.GET</span>, <span class="string">"https://httpbin.org/get"</span>, parameters: [<span class="string">"foo"</span>: <span class="string">"bar"</span>])</div><div class="line">         <span class="selector-class">.responseJSON</span> &#123; response <span class="keyword">in</span></div><div class="line">             print(response.request)  <span class="comment">// original URL request</span></div><div class="line">             print(response.response) <span class="comment">// URL response</span></div><div class="line">             print(response.data)     <span class="comment">// server data</span></div><div class="line">             print(response.result)   <span class="comment">// result of response serialization</span></div><div class="line"></div><div class="line">             <span class="keyword">if</span> let JSON = response<span class="selector-class">.result</span><span class="selector-class">.value</span> &#123;</div><div class="line">                 print(<span class="string">"JSON: \(JSON)"</span>)</div><div class="line">             &#125;</div><div class="line">         &#125;</div></pre></td></tr></table></figure>
+<p>以上代码摘抄自 <code>Alamofire</code> 的 <code>README</code> 文件是用 <code>Alamofire</code> 实现的一个最简单的 <code>.GET</code> 请求。函数的传入值是一个 <code>URL</code> 地址和 <code>GET</code> 请求需要的参数，之后调用了 <code>responseJSON</code> 函数返回一个 <code>response</code> 类型的值而 <code>response.result.value</code> 就是我们要请求的 <code>JSON</code> 数据。一连串的调用之后我们的数据就回来了，没有使用代理，多么清晰的一个世界，它是怎么做到的，让我们赶快解开她的面纱吧。</p>
+<p>##在这篇文章中你会看到：</p>
+<ul>
+<li><code>Swift</code> 知识点进阶实战：<code>Enum</code>, <code>Struct</code>，<code>Protocol</code></li>
+<li><code>Alamofire</code> 是如何把一个异步的网络请求封装在一连串的函数调用中</li>
+<li><code>NSURLSession</code> 进阶</li>
+</ul>
+<p>##开始</p>
+<p>完事开头难，先给大家讲讲在 <code>Alamofire</code> 中作者做的一些铺垫：</p>
+<p>###协议铺垫</p>
+<ul>
+<li>在 <code>Alamofire</code> 中，<code>String</code> <code>NSURL</code> <code>NSURLComponents</code> <code>NSURLRequest</code> 都实现了一个自定义的 <code>URLStringConvertible</code> 协议，协议是这样写的： </li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">URLStringConvertible</span> </span>&#123;</div><div class="line">	<span class="keyword">var</span> <span class="type">URLString</span>: <span class="type">String</span> &#123; <span class="keyword">get</span> &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li><code>NSURLResuest</code> 还额外实现了自定义的 <code>URLResuestConvertible</code> 协议，协议是这样写的：</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">URLRequestConvertible</span> </span>&#123;</div><div class="line">	<span class="keyword">var</span> <span class="type">URLRequest</span>: <span class="type">NSMutableRequest</span> &#123; <span class="keyword">get</span> &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">NSURLRequest</span>: <span class="title">URLRequestConvertible</span> </span>&#123;</div><div class="line">	<span class="keyword">public</span> <span class="keyword">var</span> <span class="type">URLRequest</span>: <span class="type">NSMutableRequest</span> &#123;</div><div class="line">		<span class="keyword">return</span> <span class="keyword">self</span>.mutableCopy() <span class="keyword">as</span>! <span class="type">NSMutableURLRequest</span></div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>(题外话：在 <code>Swift</code> 中具体自定义的协议如何命名，何以参见 <a href="http://www.cocoachina.com/swift/20160107/14868.html" target="_blank" rel="external">我从55个Swift标准库协议中学到了什么？</a>这篇文章)</p>
+<p>###NSURLSession 的一系列 Delegate 铺垫 (如果很清楚可以绕路)</p>
+<p>只讲我们会用到的一些核心的代理方法：</p>
+<ul>
+<li><code>NSURLSessionTaskDelegate</code><ul>
+<li><code>URLSession:task:didCompleteWithError:</code> 无论 task 请求完成还是失败，都会调用这个方法。</li>
+</ul>
+</li>
+<li><code>NSURLSessionDataDelegate</code><ul>
+<li><code>URLSession:dataTask:didReceiveData:</code> 数据有返回之后，会调用这个方法。我们的 GET 请求到的数据将在这个方法中被返回。</li>
+</ul>
+</li>
+</ul>
+<p>###正式看源码：</p>
+<p>首先，我们要找 <code>Alamofire</code> 的 <code>request</code> 方法，发现 <code>request</code> 函数定义在 <code>Alamofire.swift</code> 文件中，是这样实现的：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">public</span> <span class="selector-tag">func</span> <span class="selector-tag">request</span>(<span class="attribute">method</span>: Method, _ <span class="attribute">URLString</span>: URLStringConvertible, <span class="attribute">parameters</span>: [<span class="attribute">String</span>: AnyObject]? = nil, <span class="attribute">encoding</span>: ParameterEncoding = .URL, <span class="attribute">headers</span>: [<span class="attribute">String</span>: String]? = nil) <span class="selector-tag">-</span>&gt; <span class="selector-tag">Request</span></div><div class="line">&#123;</div><div class="line">    return Manager<span class="selector-class">.sharedInstance</span><span class="selector-class">.request</span>(</div><div class="line">        method,</div><div class="line">        URLString,</div><div class="line">        <span class="attribute">parameters</span>: parameters,</div><div class="line">        <span class="attribute">encoding</span>: encoding,</div><div class="line">        <span class="attribute">headers</span>: headers</div><div class="line">    )</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>解读：</p>
+<ul>
+<li>Method 是 Alamofire 中定义的一个 Enum 类型：</li>
+</ul>
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">enum</span> <span class="function"><span class="keyword">Method</span>:</span> String <span class="comment">&#123;</span></div><div class="line">    case OPTIONS, GET, HEAD, POST, PUT, PATCH, DELETE, TRACE, CONNECT</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>第二个参数要求是一个必须实现了 <code>URLStringConvertible</code> 协议类型的值。</li>
+<li>第三个参数就是 <code>GET</code> 的参数</li>
+<li>第四个值就是自定义的 <code>HTTP</code> 头 </li>
+</ul>
+<p>用脚趾头也知道，<code>Manager</code> 单例才是真正的执行人，点进去 <code>Manager</code> 看看它的 <code>request</code> 方法：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">request</span><span class="params">(method: Method, <span class="number">_</span> URLString: URLStringConvertible, parameters: [String: AnyObject]? = <span class="literal">nil</span>, encoding: ParameterEncoding = .URL, headers: [String: String]? = <span class="literal">nil</span>)</span></span> -&gt; <span class="type">Request</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">let</span> mutableURLRequest = <span class="type">URLRequest</span>(method, <span class="type">URLString</span>, headers: headers)   <span class="comment">// 生成一个 NSMutableURLRequest， 并添加自定义的 HTTP 头</span></div><div class="line">    <span class="keyword">let</span> encodedURLRequest = encoding.encode(mutableURLRequest, parameters: parameters).<span class="number">0</span>     <span class="comment">// Encode request 和 参数，返回一个正确的 NSMutableRequest</span></div><div class="line">    <span class="keyword">return</span> request(encodedURLRequest)    <span class="comment">// 发起请求</span></div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>解读：</p>
+<ul>
+<li><code>URLRequest</code> 是 Alamorire 的一个函数，返回一个<strong>设置好</strong>的 <code>NSMutableRequest</code></li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">URLRequest</span><span class="params">(method: Method, <span class="number">_</span> URLString: URLStringConvertible, headers: [String: String]? = <span class="literal">nil</span>)</span></span> -&gt; <span class="type">NSMutableURLRequest</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">let</span> mutableURLRequest = <span class="type">NSMutableURLRequest</span>(<span class="type">URL</span>: <span class="type">NSURL</span>(string: <span class="type">URLString</span>.<span class="type">URLString</span>)!)</div><div class="line">    mutableURLRequest.<span class="type">HTTPMethod</span> = method.rawValue</div><div class="line"></div><div class="line">    <span class="keyword">if</span> <span class="keyword">let</span> headers = headers &#123;</div><div class="line">        <span class="keyword">for</span> (headerField, headerValue) <span class="keyword">in</span> headers &#123;</div><div class="line">            mutableURLRequest.setValue(headerValue, forHTTPHeaderField: headerField)</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> mutableURLRequest</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li><code>encoding</code> 是 <code>ParameterEncoding</code>类型，定义在 <code>ParameterEncoding .swift</code> 文件中, 本质上是一个 <code>Enum</code>， 它负责对 <code>mutableRequest</code> 和<code>参数</code>进行再次的处理， 生成最终要使用的 <code>mutableRequest</code> 对象。(在 <code>Swift</code> 中 <code>Enum</code> 是可以有函数、计算型变量、静态函数、静态变量的)</li>
+<li>最后调用 <code>request</code> 方法来真正发起请求。</li>
+</ul>
+<p>###发起网络请求的核心 <code>request</code> 方法</p>
+<p><code>Manager</code> 的 <code>request</code> 方法定义如下：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">public func request(URLRequest: URLRequestConvertible) -&gt; Request &#123;</div><div class="line">	<span class="selector-tag">var</span> dataTask: NSURLSessionDataTask!</div><div class="line">	dispatch_sync(queue) &#123;dataTask = self<span class="selector-class">.session</span><span class="selector-class">.dataTaskWithRequest</span>(URLRequest.URLRequest)&#125;</div><div class="line">	</div><div class="line">	let request = Request(session: session, task: dataTask)</div><div class="line">	delegate[request<span class="selector-class">.delegate</span><span class="selector-class">.task</span>] = request<span class="selector-class">.delegate</span></div><div class="line">	</div><div class="line">	<span class="keyword">if</span> startRequestsImmediately &#123;</div><div class="line">		dataTask.resume()</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	return request</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>解读：</p>
+<ul>
+<li>首先定义了一个 <code>dataTask</code> 变量并用一个<strong>阻塞的串行队列</strong>初始化。这样就保证了发起的每一个请求的 <code>dataTask</code> 都能按着顺序依次初始化，如果没有初始化成功当前线程是不会继续执行的。确实很高明，学习了。</li>
+<li>初始化一个自定义的 <code>Request</code> 类型的 <code>request</code>。<code>request</code> 将持有 <code>session</code> 和自己的 <code>dataTask</code>。</li>
+<li><code>Manager</code> 的 <code>delegate</code> 变量是一个 <code>SessionDelegate</code> 类型的实例。因为 <code>SessionDelegate</code> 重写了 <code>subscript</code> 方法所以可以用下标进行操作。注意，它不是数组。这也是 <code>Swift</code> 很 <code>Cool</code> 的地方，可以给任何类赋予下标操作。这句代码的作用下面再讲，因为<strong>这是 <code>Alamofire</code> 可以发起 <code>N</code> 多请求而不会混乱的原因</strong>.</li>
+<li>下面的两句代码很容易就明白，如果你想立即发起请求(默认就是这样的)，那 <code>dataTask</code> 就会调用 <code>resume()</code> 方法发起请求。在这之后，剩下的所有工作就会全部交到代理(<code>NSURLSessionTaskDelegate</code>、<code>NSURLSessionDataDelegate</code>)那里去做了。</li>
+</ul>
+<p>###幕后大管家 SessionDelegate</p>
+<p><code>SesssionDelegate</code> 是这样实现的：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Manager</span> </span>&#123;</div><div class="line">	...</div><div class="line">	<span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">SessionDelegate</span>: <span class="type">NSObject</span>, <span class="type">NSURLSessionDelegate</span>, <span class="type">NSURLSessionTaskDelegate</span>, <span class="type">NSURLSessionDataDelegate</span>, <span class="type">NSURLSessionDownloadDelegate &#123;</span></span></div><div class="line">		<span class="keyword">private</span> <span class="keyword">var</span> subdelegate: [<span class="built_in">Int</span>: Request.TaskDelegate] = [:]</div><div class="line">		<span class="keyword">private</span> let subdelegateQueue = disaptch_queue_create(nil, DISPATCH_QUEUE_CONCURRENT)</div><div class="line">	</div><div class="line">		subscript(task: NSURLSessionTask) -&gt; Request.TaskDelegate? &#123;</div><div class="line">			<span class="keyword">get</span> &#123;</div><div class="line">				<span class="keyword">var</span> subdelegate: Request.TaskDelegate? </div><div class="line">				dispatch_sync(subdelegateQueue) &#123; subdelegate = self.subdelegates[task.taskIdentifier] &#125;</div><div class="line">				</div><div class="line">				<span class="keyword">return</span> subdelegate</div><div class="line">			&#125;</div><div class="line">			</div><div class="line">			<span class="keyword">set</span> &#123;</div><div class="line">				dispatch_barrier_async(subdelegateQueue) &#123; self.subdelegates[task.taskIdentifier] = newValue &#125;</div><div class="line">			&#125;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">		...</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>正如你看到的， <code>SessionDelegate</code> 以内部类的形式定义在 <code>Manager</code> 中(我也是第一次见这种写法，学习了, <code>TaskDelegate</code> 也是 <code>Request</code> 中的一个内部类，所以你也看到了内部类的调用方式)，实现了该实现的所有的 <code>Delagate</code>, 里面都是代理需要定义的方法，所以就不写出了。</p>
+<p>这里有一个很奇妙的设计， 刚才提到的 <code>Request</code> 的内部类 <code>TaskDelegate</code> 其实才是回调真正的执行者，它没有遵循 <code>NSURLSessionDelegate</code> 协议但是却有着和 <code>NSURLSessionDelegate</code> 相同名称相同参数的一套方法。他还有着自己的子类，这里我们要看到是他的 <code>DataTaskDelegate</code> 子类。</p>
+<p>当我们在 Manager 的 request 方法中初始化一个 request 的时候，内部是这样的：</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">let</span> request = Request(session: session, task: dataTask)</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Request</span> &#123;</div><div class="line">	<span class="keyword">public</span> <span class="keyword">let</span> <span class="keyword">delegate</span>: TaskDelegate</div><div class="line">	<span class="keyword">public</span> <span class="keyword">var</span> task: NSURLSessionTask &#123; <span class="keyword">return</span> <span class="keyword">delegate</span>.task &#125;</div><div class="line">	<span class="keyword">public</span> <span class="keyword">let</span> session: NSURLSession</div><div class="line">	<span class="keyword">public</span> <span class="keyword">var</span> request: NSURLRequest? &#123; <span class="keyword">return</span> task.originalRequest &#125;</div><div class="line">	<span class="keyword">public</span> <span class="keyword">var</span> response: NSHTTPURLResponse? &#123; <span class="keyword">return</span> task.response <span class="keyword">as</span>? NSHTTPURLResponse &#125;</div><div class="line">	</div><div class="line">	init(session: NSURLSession, task: NSURLSession) &#123;</div><div class="line">		self.session = session</div><div class="line">		</div><div class="line">        <span class="keyword">switch</span> task &#123;</div><div class="line">        <span class="keyword">case</span> <span class="keyword">is</span> NSURLSessionUploadTask:</div><div class="line">            self.<span class="keyword">delegate</span> = UploadTaskDelegate(task: task)</div><div class="line">        <span class="keyword">case</span> <span class="keyword">is</span> NSURLSessionDataTask:</div><div class="line">            self.<span class="keyword">delegate</span> = DataTaskDelegate(task: task)</div><div class="line">        <span class="keyword">case</span> <span class="keyword">is</span> NSURLSessionDownloadTask:</div><div class="line">            self.<span class="keyword">delegate</span> = DownloadTaskDelegate(task: task)</div><div class="line">        <span class="keyword">default</span>:</div><div class="line">            self.<span class="keyword">delegate</span> = TaskDelegate(task: task)</div><div class="line">        &#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>到这里就不得不提 TaskDelegate 中的变量和初始化方式。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Request</span> </span>&#123;</div><div class="line"></div><div class="line">	...</div><div class="line">	</div><div class="line">	<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TaskDelegate</span>: <span class="title">NSObject</span> </span>&#123;</div><div class="line">		<span class="keyword">public</span> <span class="keyword">let</span> queue: <span class="type">NSOperationQueue</span></div><div class="line">	</div><div class="line">		<span class="keyword">let</span> task: <span class="type">NSURLSessionTask</span></div><div class="line">		<span class="keyword">let</span> data: <span class="type">NSData</span>? &#123; rerturn <span class="literal">nil</span> &#125;</div><div class="line">		<span class="keyword">var</span> error: <span class="type">NSError</span>?</div><div class="line">	</div><div class="line">		<span class="keyword">init</span>(task: <span class="type">NSURLSessionTask</span>) &#123;</div><div class="line">			<span class="keyword">self</span>.task = task</div><div class="line">			<span class="keyword">self</span>.quueue = &#123;</div><div class="line">				<span class="keyword">let</span> operationQueue = <span class="type">NSOperationQueue</span>()</div><div class="line">				operationQueue.maxConcurrentOperationCount = <span class="number">1</span></div><div class="line">				operationQueue.suspended = <span class="literal">true</span></div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">		...</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="class"><span class="keyword">class</span> <span class="title">DataTaskDelegate</span>: <span class="title">TaskDelegate</span>, <span class="title">NSURLSessionDelegate</span> </span>&#123;</div><div class="line">		<span class="keyword">private</span> <span class="keyword">var</span> mmutableData: <span class="type">NSMutableData</span></div><div class="line">		ovrride <span class="keyword">var</span> data: <span class="type">NSData</span>? &#123;</div><div class="line">			<span class="keyword">return</span> mutableData</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里 <code>Alamofire</code> 运用了工厂模式，根据我们传入的 <code>dataTask</code> 类型设置好对应的 <code>delegate</code> 类型。因为我们传入的是 <code>dataTask</code>，所以，我们的 <code>request</code> 的 <code>delegate</code> 应该是 <code>DataTaskDelegate</code> 类型。在 <code>TaskDelegate</code> 中 <code>operationQueue.suspended = true</code> 的设置尤为关键，它是把整个请求流程串起来的诀窍。</p>
+<p>####SessionDelegate 如何做的</p>
+<p>当一个 dataTask.resume() 调用之后， SessionDelegate 开始执行对应的代理方法，比如我们看 NSURLSessionDataDelegate 中的 didReceiveData 函数：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">URLSession</span><span class="params">(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData)</span></span> &#123;</div><div class="line">   <span class="keyword">if</span> <span class="keyword">let</span> delegate = <span class="keyword">self</span>[dataTask] <span class="keyword">as</span>? <span class="type">Request</span>.<span class="type">DataTaskDelegate</span> &#123;</div><div class="line">      delegate.<span class="type">URLSession</span>(session, dataTask: dataTask, didReceiveData: data)</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>当一个真正的代理函数执行的时候，它会找到相应 <code>dataTask</code> 对应的 <code>TaskDelegate</code> 中的同名同参的函数来执行，这样，每一个 <code>dataTask</code>  维护了一个属于自己的 <code>TaskDelegate</code> 对象，清晰简洁，即使有 N 个 <code>dataTask</code> 也不会导致混乱，轻松解耦， Nice!</p>
+<p>在对应的 <code>DataTaskDelegate</code> 中的同名同参函数中是这样实现的：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">func</span> <span class="selector-tag">URLSession</span>(<span class="attribute">session</span>: NSURLSession, <span class="attribute">dataTask</span>: NSURLSessionDataTask, didReceiveData <span class="attribute">data</span>: NSData) &#123; </div><div class="line">	mutableData<span class="selector-class">.appendData</span>(data)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这样，<code>request</code> 的 <code>delegate: TaskDelegate</code> 就拿到了返回的数据。</p>
+<p>###拿到数据之后的事情： 传递 &amp; 解析</p>
+<p>现在拿到的数据是 NSData 类型的，解析的任务将会交给 ResponseSerializer 进行解析，定义在 ResponseSerilalization.swift 文件中，代码写的也是相当精彩(因为代码组织的太好了，关于 Alamofire 相关的 Swift 使用技巧我会另起一片文章写)。</p>
+<p>在这个文件中，我们发现了一个 Request 的扩展：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Request</span> </span>&#123;</div><div class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">response</span>&lt;T: ResponseSerializerType&gt;<span class="params">(queue queue: dispatch_queue_t? = <span class="literal">nil</span>, responseSerializer: T, completionHandler: Response&lt;T.SerializedObject, T.ErrorObject&gt; -&gt; Void)</span></span> -&gt; <span class="type">Self</span> &#123;</div><div class="line">		delegate.queue.addOperationWithBlock &#123;</div><div class="line">            	<span class="keyword">let</span> result = responseSerializer.serializeResponse(    <span class="comment">//调用解析器进行解析， 生成 result</span></div><div class="line">            	    <span class="keyword">self</span>.request,</div><div class="line">            	    <span class="keyword">self</span>.response,</div><div class="line">            	    <span class="keyword">self</span>.delegate.data,</div><div class="line">            	    <span class="keyword">self</span>.delegate.error</div><div class="line">           	 )</div><div class="line"></div><div class="line">          	  dispatch_async(queue ?? dispatch_get_main_queue()) &#123;</div><div class="line">               	 <span class="keyword">let</span> response = <span class="type">Response</span>&lt;<span class="type">T</span>.<span class="type">SerializedObject</span>, <span class="type">T</span>.<span class="type">ErrorObject</span>&gt;(   <span class="comment">//构造 response 准备返回</span></div><div class="line">                   	 request: <span class="keyword">self</span>.request,</div><div class="line">              	     response: <span class="keyword">self</span>.response,</div><div class="line">              	     data: <span class="keyword">self</span>.delegate.data,</div><div class="line">             	     result: result</div><div class="line">           	     )</div><div class="line"></div><div class="line">          	      completionHandler(response)</div><div class="line">        	    &#125;</div><div class="line">       	 &#125;</div><div class="line">     	   <span class="keyword">return</span> <span class="keyword">self</span></div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">responseJSON</span><span class="params">( options options: NSJSONReadingOptions = .AllowFragments, completionHandler: Response&lt;AnyObject, NSError&gt; -&gt; Void)</span></span> -&gt; <span class="type">Self</span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">return</span> response( responseSerializer: <span class="type">Request</span>.<span class="type">JSONResponseSerializer</span>(options: options), completionHandler: completionHandler)</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在这里，我们通过解析器获取解析好的 <code>result</code> 变量(<code>result</code> 是一个 <code>Enum</code> 类型的 <code>Result&lt;T, E: ErrorType&gt;</code> 型变量，不得不感叹 <code>Swift</code> 中强大 <code>Enum</code>)，然后再构造出一个 <code>response</code> 变量，通过 <code>completionHandler(response)</code> 传递给调用者，一切都是那么的完美。经过以上这么一系列的化学反应，再看我们开始的 <code>Alamofire</code> 的使用例子代码，<code>Alamofire.request</code> 方法返回了一个 <code>Request</code> 对象所以可以继续调用 <code>responseJSON</code> 方法从而我们就可以从 <code>completionHanlder</code> 闭包中拿到了我们想要的数据。</p>
+<p>但是有没有想一个问题，就是 <code>responseJSON</code> 中的代码是不是应该等到在 <code>SessionDelegate</code> 中的代理方法执行完之后再执行，从字面上看 <code>responseJSON</code> 是立即执行的啊，并没有等到代理方法调用完成后再执行，那 <code>Alamofire</code> 是怎样做到的呢？答案就是 <code>TaskDelegate</code> 中 <code>operationQueue</code> 的设置，<code>operationQueue.suspended = true</code>.注意在 <code>response</code> 函数中， <code>Alamofire</code> 把真正获取结果的操作放在了 <code>delegate.queue</code> 中执行的。在 <code>TaskDelegate</code> 的 <code>completionWithError</code> 回调中还有一句不起眼的 <code>queue.suspended = false</code>.</p>
+<p><code>NSOperationQueue</code> 的 <code>suspended</code> 变量是 iOS8 才有的，大家可以到苹果的文档去查它的定义。它的作用就是，当它置为 <code>true</code> 的时候， <code>NSOperationQueue</code> 所有未执行的任务都会被挂起，当它置为 <code>false</code> 的时候，<code>NSOperationQueue</code> 中未执行的任务才会被执行，简直酷炫。回到 <code>Alamofire</code>，虽然我们是立即调用了 <code>responseJSON</code>， 但是其中返回结果的代码放到了 <code>delegate.queue</code> 中。<code>queue</code> 初始化的时候 <code>suspended</code> 属性为 <code>true</code>,所以这个任务虽然添加到 <code>queue</code> 中了但是确实被挂起的，直到代理方法执行结束，数据返回，<code>TaskDelegate</code> 中的  <code>completionWithError</code> 被调用，<code>queue</code> 的 <code>suspended</code> 设置为 <code>false</code>, <code>queue</code> 中的任务才执行的。精巧的设计，酷炫的不行不行的！！</p>
+<p>Alamofire 精彩绝伦，建议大家都尝试读一下。</p>
+<p>##结束</p>
+<p>此文不仅屎长屎长的还他丫的逻辑不通顺，读到这的都是英雄，如果你觉得此文太挫还是亲自去读源码的好，那我就赢了  (๑¯ิε ¯ิ๑) </p>
+
+      
+    </div>
+    <footer class="article-footer">
+        <div class="article-meta pull-left">
+          
+  
+
+  <span class="post-categories">
+    <i class="icon-categories"></i>
+    <a href="/categories/学习笔记/">学习笔记</a>
+  </span>
+
+
+          
+        </div>
+        
+    </footer>
+  </div>
+</article>
+
+  
+
+
+
+    </main>
+
+    <footer id="colophon" class="site-footer" role="contentinfo"><p class="site-info">
+  Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+  Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+  </br>
+  
+  &copy; 2016 Zhenyu
+  
+</p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

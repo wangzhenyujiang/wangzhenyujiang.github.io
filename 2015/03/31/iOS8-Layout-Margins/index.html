@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS8 Layout Margins | Secret</title>
+  <meta name="author" content="Zhenyu">
+  
+  <meta name="description" content="为什么贴不上边呢？">
+  
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="iOS8 Layout Margins"/>
+  <meta property="og:site_name" content="Secret"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Secret" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div id="page" class="site">
+  <div id="primary" class="content-area">
+
+    <header id="header" class="inner"><div class="site-branding">
+  <h1 class="site-title">
+    <a href="/">Secret</a>
+  </h1>
+  <p class="site-description"></p>
+</div>
+<nav id="site-navigation" class="main-navigation" role="navigation">
+  <ul>
+    
+      <li><a href="/">主页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+</nav></header>
+
+    <main id="main" class="site-main posts-loop" role="main">
+      <article class="post article">
+
+  
+  
+    <h3 class="article-title"><span>iOS8 Layout Margins</span></h3>
+  
+
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/03/31/iOS8-Layout-Margins/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-03-31T15:17:53.000Z">
+          2015-03-31
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>iOS8 Layout Margins<br><a id="more"></a></p>
+<p><a href="http://coding.tabasoft.it/ios/ios8-layout-margins/" target="_blank" rel="external">原文地址：</a> <a href="http://coding.tabasoft.it/ios/ios8-layout-margins/" target="_blank" rel="external">http://coding.tabasoft.it/ios/ios8-layout-margins/</a></p>
+<p>iOS8 SDK 增加了一个新的概念叫做 <code>layout margins</code>。而且在 <code>UIView</code> 中也已经添加了一个新的属性：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> layoutMargins: <span class="type">UIEdgeInsets</span></div></pre></td></tr></table></figure>
+<p>这 4 个值(the <code>UIEdgeInsets</code> fields)代表了 view 的 margins 。通过这些 margins 可以很容易的确定子视图的位置。</p>
+<p>举个例子：下面这个图，设置了一个子视图对父视图的 <code>leading space</code> 的值为 0 (relative to margin):</p>
+<p><img src="http://coding.tabasoft.it/wp-content/uploads/2014/09/Schermata-2014-09-15-alle-13.09.59.png" alt=""></p>
+<p>我们期望看到的是黄色的 view 左边缘与绿色 superview 的左边缘重合，但是实际情况并没有像我们预期的一样。</p>
+<p><code>leading constraint</code> 是和 <code>margin</code>是相互影响的，view 的 <code>margin</code> 默认是 8 个像素(至少现在是这样的)。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="type">Default</span> <span class="type">Margins</span> = <span class="type">UIEdageInset</span>(top: <span class="number">8</span>, <span class="keyword">left</span>: <span class="number">8</span>, bottom: <span class="number">8</span>,<span class="keyword">right</span>: <span class="number">8</span>)</div></pre></td></tr></table></figure>
+<p>所以，实际上，里面的黄色 view 被向右移动了 8 个像素。</p>
+<p>我们可以在 Interface Builder 的菜单里改变这种 constraint 的默认行为：</p>
+<p><img src="http://coding.tabasoft.it/wp-content/uploads/2014/09/Schermata-2014-09-15-alle-13.13.01.png" alt=""></p>
+<p>取消 <code>Relative to Margin</code> 选项,这样 constraint 就会与 superview 的左边缘关联而不是左边的 margin。</p>
+<p><img src="http://coding.tabasoft.it/wp-content/uploads/2014/09/Schermata-2014-09-15-alle-13.18.56.png" alt=""></p>
+<p>当我们在 Interface Builder 中添加一个 contraint 的时候它会与 margin 关联(当mainViewController被调用的时候看上去好像是默认关联的)。</p>
+<p>通过编程，我们可以通过下面的代码来改变 layout margin 的默认值：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> version &gt;= <span class="number">8</span> &#123;</div><div class="line">  myView.layoutMatgins = <span class="type">UIEageInsets</span>(</div><div class="line">    top: <span class="number">0</span>,</div><div class="line">    <span class="keyword">left</span>: <span class="number">40</span>,</div><div class="line">    bottom: <span class="number">0</span>,</div><div class="line">    <span class="keyword">right</span>: <span class="number">0</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这段代码将会实现下面的效果，子视图将会向右移动 40 个像素：</p>
+<p><img src="http://coding.tabasoft.it/wp-content/uploads/2014/09/Schermata-2014-09-15-alle-13.26.31.png" alt=""></p>
+<blockquote>
+<p>注意： 一定要检查系统的版本，因为以上代码只支持 iOS8 以及开没有发布的将来的版本。你可以这样来定义版本：</p>
+</blockquote>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> version = (<span class="type">UIDevice</span>.currentDevice().systemVersion <span class="keyword">as</span> <span class="type">NSString</span>).douleValue</div></pre></td></tr></table></figure>
+<p>##Programmatic Constraints</p>
+<p>####preservesSuperviewLayoutMargins: Bool</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> perservesSuperviewLayoutMargins: <span class="type">Bool</span></div></pre></td></tr></table></figure>
+<p>在苹果的文档中是这样写的：</p>
+<p><em>A Boolean value indicating whether the current view also respects the margins of its superview.</em></p>
+<blockquote>
+<p>注：翻译过来大概就是: 子视图用这个属性来决 superview 的 margin 对它是否影响。</p>
+</blockquote>
+<p>在下面这个图中，红色的 view 包含着一个包含着紫色 view 的棕色 view。红色的 view 包含着一个 left margin 是 40pt。棕色的 view 定义了一个 leading constraint0 并与 superview 的边关联(注意：不是与margin关联)，所以它可以到达最左边。紫色的 view 也有一个 leading constraint0 并于 棕色的 margin 关联了(棕色 view 的 margin 是 2pt).下面是结果：</p>
+<p><img src="http://coding.tabasoft.it/wp-content/uploads/2014/09/Schermata-2014-09-15-alle-14.16.32.png" alt=""></p>
+<p>另一方面，如果我们设置棕色 view 的 <code>preservesSuperviewLayoutMargins</code> 为 <code>true</code>。那么它的子视图就会受到这个 margin 的影响：</p>
+<p><img src="http://coding.tabasoft.it/wp-content/uploads/2014/09/Schermata-2014-09-15-alle-14.16.51.png" alt=""> </p>
+<p>如果我们在自定义的 view 的 class 中实现了下面这个方法，那么它会在每一次 margins 改变的时候被调用：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">layoutMarginsDidChange</span><span class="params">()</span></span> &#123;</div><div class="line">  <span class="built_in">println</span>(<span class="string">"layoutMarginsDidChange"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>##Code</p>
+<p><a href="https://github.com/tabasoft/LayoutMargins" target="_blank" rel="external">源码下载</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+        <div class="article-meta pull-left">
+          
+  
+
+  <span class="post-categories">
+    <i class="icon-categories"></i>
+    <a href="/categories/开发笔记/">开发笔记</a>
+  </span>
+
+
+          
+  
+
+  <span class="post-tags">
+    <i class="icon-tags"></i>
+    <a href="/tags/AutoLayout/">AutoLayout</a>
+  </span>
+
+
+        </div>
+        
+    </footer>
+  </div>
+</article>
+
+  
+
+
+
+    </main>
+
+    <footer id="colophon" class="site-footer" role="contentinfo"><p class="site-info">
+  Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+  Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+  </br>
+  
+  &copy; 2016 Zhenyu
+  
+</p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

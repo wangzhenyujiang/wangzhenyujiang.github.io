@@ -1,0 +1,160 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Protocol Extension | Secret</title>
+  <meta name="author" content="Zhenyu">
+  
+  <meta name="description" content="Swift 利器">
+  
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="Protocol Extension"/>
+  <meta property="og:site_name" content="Secret"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Secret" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div id="page" class="site">
+  <div id="primary" class="content-area">
+
+    <header id="header" class="inner"><div class="site-branding">
+  <h1 class="site-title">
+    <a href="/">Secret</a>
+  </h1>
+  <p class="site-description"></p>
+</div>
+<nav id="site-navigation" class="main-navigation" role="navigation">
+  <ul>
+    
+      <li><a href="/">主页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+</nav></header>
+
+    <main id="main" class="site-main posts-loop" role="main">
+      <article class="post article">
+
+  
+  
+    <h3 class="article-title"><span>Protocol Extension</span></h3>
+  
+
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/12/05/procotol-extension/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-12-05T13:26:36.000Z">
+          2015-12-05
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>Protocol Extension</p>
+<a id="more"></a>
+<p>#Swift2.0 协议扩展</p>
+<blockquote>
+<p><code>Swift is now open source!</code> 当我看到这句话的时候感觉心跳都加速了，你呢？</p>
+<blockquote>
+<p>顺便安利一下：作为一个 iOS 兼 Swift 初学者，在 github 上开了一个仓库叫做 <a href="https://github.com/wangzhenyujiang/Gank" target="_blank" rel="external">Gank</a>,才起步, 用 Swift2.0 写的，欢迎大家 star 和提出建议(欢迎拿意见猛砸我)。</p>
+</blockquote>
+</blockquote>
+<p>下面归正传：</p>
+<p>如果你看过上一届的 WWDC，那你应该知道 <code>Protocol-Oriented Programming</code> 这一节，至少你应该听说过。</p>
+<p>###简单总结 Protocol <em>(中文名：协议， 土名：普绕忒靠)</em></p>
+<p>先快速而简单的讲讲。请允许我假设读者们以前都知道 <code>Protocol</code> 是啥，其实在别的语言里有的时候也叫做 <code>Interface 接口</code>。“Protocol” 是在 OC 和 Swift 中的专用术语。</p>
+<p>下面一个小例子：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Hello</span> </span>&#123;</div><div class="line">	<span class="function"><span class="keyword">func</span> <span class="title">sayHello</span><span class="params">()</span></span> -&gt; <span class="type">String</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>一个协议相当于定义了一个接口。在这个小例子中，协议 <code>Hello</code> 有一个返回类型为 String 的 <code>sayHello()</code> 函数。</p>
+<p>当仅仅定义一个孤零零的协议在这里用处不是很大，你应该定义一个 <code>class</code> 或者 <code>struct</code> (安利一下：在 Swift 中,<code>struct</code>,<code>enum</code> 等类型翻身把歌唱，地位提升到与 <code>class</code> 同一个级别了 )来遵守这个协议，并实现协议中的方法：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span>: <span class="title">Hello</span> </span>&#123;</div><div class="line">	<span class="keyword">var</span> name = <span class="string">"Steve"</span></div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">func</span> <span class="title">sayHello</span><span class="params">()</span></span> -&gt; <span class="type">String</span> &#123;</div><div class="line">		<span class="keyword">return</span> </div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>现在你可以初始化一个类的实例并调用其中的方法了：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> <span class="built_in">c</span> = <span class="type">MyClass</span>() </div><div class="line"><span class="built_in">c</span>.sayHello()       <span class="comment">//Hello Steven</span></div></pre></td></tr></table></figure>
+<p>想看点不一样的酷帅的特性吗：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> h: <span class="type">Hello</span> = <span class="built_in">c</span></div><div class="line">h.sayHello()      <span class="comment">//Hello Steven</span></div></pre></td></tr></table></figure>
+<p>在这种场景下,在幕后其实变量 <code>h</code> 是 <code>MyClass</code> 实例，但是对于 Xcode 和编程人员来说，<code>h</code> 只是一个 <code>Hello</code> 类型的对象, 所以它 <code>h</code> 只能调用在协议里定义过的方法。</p>
+<p>这就是 <code>Protocol</code> 的强大之处：它会让你隐藏掉你的对象的真实类型(they let you hide the actual type of your object)。代码只关心这个对象可以做的事情，但是它并不需要知道对象里面的别的不相干的东西。</p>
+<p>这让你在写代码的时候只关心接口而不是实现，这是件很好的事情。</p>
+<p>所以，尽管 <code>h</code> 指向一个拥有 <code>name</code> 属性的对象 <code>c</code>,但是你不能这样写 <code>h.name</code>. <code>name</code> 属性并没有在 <code>Hello</code> 中定义所以编译器并看不到。</p>
+<p>协议就四介么简单，在 iOS 上也经常这么使用，但是协议用的更多的是用在代理模式上，这里就不细说了。</p>
+<p>###新功能：Ptotocol Extension</p>
+<p>一个简单的协议扩展：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Hello</span> </span>&#123;</div><div class="line">	<span class="function"><span class="keyword">func</span> <span class="title">sayHello</span><span class="params">()</span></span> -&gt; <span class="type">String</span> </div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Hello</span> </span>&#123;</div><div class="line">	<span class="function"><span class="keyword">func</span> <span class="title">sayHello</span><span class="params">()</span></span> -&gt; <span class="type">String</span> &#123;</div><div class="line">		<span class="keyword">return</span> <span class="string">"Hello Stranger"</span></div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个协议表面上还是和上面的一模一样，但是现在运用扩展(英文名叫：<code>extension</code>)给了 <code>sayHello()</code> 函数一个默认的实现。</p>
+<p>其实我们之前已经见过 <code>extension</code> 的兄弟了 <code>category</code>.但是 <code>category</code> 只能用在 <code>class</code> 上。在 Swift2.0 中，<code>extension</code> 都可以用在 <code>protocol</code> 上了。(<code>struct</code> 和<code>enum</code> 听到后也激动的举起了双手表示“Me Too”)。</p>
+<p>现在你可以这样写你的代码了：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span>: <span class="title">Hello</span> </span>&#123;</div><div class="line">	</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">let</span> <span class="built_in">c</span> = <span class="type">MyClass</span>()</div><div class="line"><span class="built_in">c</span>.sayHello()     <span class="comment">//Hello Stranger</span></div></pre></td></tr></table></figure>
+<p>如果你想让你的类有 <code>sayHello()</code> 方法，实现 <code>Hello</code> 协议后什么都不用写就可以搞定。</p>
+<p>当然，如果你想重写 <code>sayHello()</code> 函数那就在类中实现就行了：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> <span class="type">MyClass</span>: <span class="type">Hello</span> &#123;</div><div class="line">	<span class="keyword">var</span> name = <span class="string">"Steven"</span></div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">func</span> <span class="title">sayHello</span><span class="params">()</span></span> -&gt; <span class="type">String</span> &#123;</div><div class="line">		<span class="keyword">return</span> <span class="string">"Hello<span class="subst">\(name)</span>"</span></div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个时候，当你调用 <code>sayHello()</code> 函数的时候，会调用 <code>MyClass</code> 中的实现而不是 <code>Hello</code> 中的默认实现。</p>
+<p>你可能会想，这跟继承有什么区别呢？最大的区别就是 <code>MyClass</code> 并不是 <code>Hello</code> 的子类。在 <code>sayHello()</code> 函数中不能使用 <code>super</code> 关键字。</p>
+<p>直到现在，<code>MyClass</code> 并没有一个父类，但是我们下面给它一个父类：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span>: <span class="type">BaseClass</span>, <span class="type">Hello &#123;</span></span></div><div class="line">	...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>但是，仔细想想，你只能有一个基类但是你可以实现 N 多的协议，想加就加：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span>: <span class="type">BaseClass</span>, <span class="type">Hello</span>, <span class="type">AnotherProtocol</span>, <span class="type">YetAnother &#123;</span></span></div><div class="line">	...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们为了代码重用经常使用继承的方式，但是 <code>protocol extension</code> 也可以让你实现代码复用但是不会让你拘泥于·父类与子类·的复杂关系。</p>
+<p>如果你曾经使用过 C++ 的多继承那你应该知道这会让代码变得相当棘手。但是<code>Procotol Extension</code> 为你提供了一个简单的方法来实现同样的事情却也同时避免了多继承带来的苦恼。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+        <div class="article-meta pull-left">
+          
+          
+  
+
+  <span class="post-tags">
+    <i class="icon-tags"></i>
+    <a href="/tags/Swift/">Swift</a>
+  </span>
+
+
+        </div>
+        
+    </footer>
+  </div>
+</article>
+
+  
+
+
+
+    </main>
+
+    <footer id="colophon" class="site-footer" role="contentinfo"><p class="site-info">
+  Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+  Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+  </br>
+  
+  &copy; 2016 Zhenyu
+  
+</p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

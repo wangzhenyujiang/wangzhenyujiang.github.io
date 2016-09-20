@@ -1,0 +1,147 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Loading a View from a XIB | Secret</title>
+  <meta name="author" content="Zhenyu">
+  
+  <meta name="description" content="妈妈再也不用担心我自定义 View 了">
+  
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="Loading a View from a XIB"/>
+  <meta property="og:site_name" content="Secret"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Secret" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div id="page" class="site">
+  <div id="primary" class="content-area">
+
+    <header id="header" class="inner"><div class="site-branding">
+  <h1 class="site-title">
+    <a href="/">Secret</a>
+  </h1>
+  <p class="site-description"></p>
+</div>
+<nav id="site-navigation" class="main-navigation" role="navigation">
+  <ul>
+    
+      <li><a href="/">主页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+</nav></header>
+
+    <main id="main" class="site-main posts-loop" role="main">
+      <article class="post article">
+
+  
+  
+    <h3 class="article-title"><span>Loading a View from a XIB</span></h3>
+  
+
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/07/29/loading-a-view-from-a-xib/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-07-28T16:40:42.000Z">
+          2015-07-29
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>Loading a View from a XIB</p>
+<a id="more"></a>
+<p>通常情况下，有两种布局自定义 <code>View</code> 的方法，分别是：通过可视化布局和代码布局。这两种方式都可以得到自己想要的结果，但是在许多情况下，可视化布局更方便些。但是如果你用 <code>interface builder</code> 来布局一个 <code>veiw</code> 的时候，其通常会依附在一个 <code>viewController</code> 上。这样会很麻烦也让人很心塞，但是我们也可以甩掉这个死皮赖脸不要 face 的 <code>viewController</code> 只布局自己想要的那个 <code>view</code>! 怎么做呢？你可以用代码来初始化 <code>view</code>,并用 <code>XIB</code> 来初始化布局，最后再把你的 <code>view</code> 当做 <code>subView</code> 加在另一个 <code>view</code> 上就可以了。</p>
+<p>##Creating the View</p>
+<p>首先，我们先创建一个 <code>UIView</code> 的子类，叫做 <code>CustomView</code>:</p>
+<p><img src="http://thomashanningcom.c.presscdn.com/wp-content/uploads/2015/07/Bildschirmfoto-2015-07-04-um-15.38.44.png" alt=""></p>
+<p>然后，我们创建一个 <code>XIB</code> 文件。你可以在这下面找到它 <code>File -&gt; New File -&gt; User Interface -&gt; View</code>，将其命名为 <code>CustomView.xib</code>。</p>
+<p><img src="http://thomashanningcom.c.presscdn.com/wp-content/uploads/2015/07/Bildschirmfoto-2015-07-04-um-15.43.15.png" alt=""></p>
+<p>接下来，打开 <code>CustomView.xib</code> 文件，在 <code>identity inspector</code> 中将 <code>CustomView</code> 设置为它的 <code>class</code>:</p>
+<p><img src="http://thomashanningcom.c.presscdn.com/wp-content/uploads/2015/07/Bildschirmfoto-2015-07-04-um-15.45.54.png" alt=""></p>
+<p>把 view 的背景设置为红色，添加一个按钮并设置按钮的约束为水平和垂直居中：</p>
+<p><img src="http://thomashanningcom.c.presscdn.com/wp-content/uploads/2015/07/Bildschirmfoto-2015-07-04-um-15.47.52-1024x619.png" alt=""></p>
+<p>现在，我们可以向 <code>CustomView.swift</code> 文件中添加 <code>actions</code> 和 <code>outlets</code> 了。(译者： 发挥想象自由的翱翔吧！)</p>
+<p><img src="http://thomashanningcom.c.presscdn.com/wp-content/uploads/2015/07/Bildschirmfoto-2015-07-04-um-15.49.58.png" alt=""></p>
+<p>##Loading the View</p>
+<p>这样，我们就把我们的 view 建好了，现在我们可以把它作为一个 subView 添加到另外一个 view 上了。为此，我们在 viewController 上添加一个空白的 UIView 叫做 <code>contentView</code> 而且创建 <code>outlet</code>。 我们把这个 contentView 的 size 设置为 50 x 50,并把它放在左上角。</p>
+<p><img src="http://thomashanningcom.c.presscdn.com/wp-content/uploads/2015/07/Bildschirmfoto-2015-07-04-um-15.54.15.png" alt=""></p>
+<p>最后一步是在 viewController 的 <code>viewDidLoad</code> 方法中：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> <span class="keyword">let</span> customView = NSBundle.mainBundle().loadNibNamed(<span class="string">"CustomView"</span>, owner: self, option<span class="variable">s:</span> nil).<span class="keyword">first</span> <span class="keyword">as</span>? CustomView &#123;</div><div class="line">  contentView.addSubview(customView)</div><div class="line">  customView.setTranslatesAutoresizingMaskIntoConstraints(false)</div><div class="line">  contentView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(<span class="string">"H:|-0-[view]-0-|"</span>, option<span class="variable">s:</span> NSLayoutFormatOptions(<span class="number">0</span>), metric<span class="variable">s:</span> nil, <span class="keyword">view</span><span class="variable">s:</span> [<span class="string">"view"</span>:customView]))</div><div class="line">  contentView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(<span class="string">"V:|-0-[view]-0-|"</span>, option<span class="variable">s:</span> NSLayoutFormatOptions(<span class="number">0</span>), metric<span class="variable">s:</span> nil, <span class="keyword">view</span><span class="variable">s:</span> [<span class="string">"view"</span>:customView]))</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>第一，我们初始化了 customView 并从 xib 中加载它。我们用 <code>laodNibNamed</code>方法来做到这一点。然后，我们把它当做 subView 放在 contentView 上然后设置好合适的约束。</p>
+<p>最后的效果：</p>
+<p><img src="http://thomashanningcom.c.presscdn.com/wp-content/uploads/2015/07/Bildschirmfoto-2015-07-04-um-16.02.35.png" alt=""></p>
+<p>##Finally</p>
+<p>原文：<a href="http://www.thomashanning.com/loading-a-view-from-a-xib/" target="_blank" rel="external">Loading a View from a XIB</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+        <div class="article-meta pull-left">
+          
+  
+
+  <span class="post-categories">
+    <i class="icon-categories"></i>
+    <a href="/categories/翻译笔记/">翻译笔记</a>
+  </span>
+
+
+          
+  
+
+  <span class="post-tags">
+    <i class="icon-tags"></i>
+    <a href="/tags/View/">View</a>
+  </span>
+
+
+        </div>
+        
+    </footer>
+  </div>
+</article>
+
+  
+
+
+
+    </main>
+
+    <footer id="colophon" class="site-footer" role="contentinfo"><p class="site-info">
+  Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+  Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+  </br>
+  
+  &copy; 2016 Zhenyu
+  
+</p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>
